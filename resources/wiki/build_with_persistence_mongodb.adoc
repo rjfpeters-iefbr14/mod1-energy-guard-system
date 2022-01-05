@@ -1,0 +1,8 @@
+= MongoDB
+:toc:
+:icons: font
+:url-quickref:
+
+== spring boot connection
+
+If you use the Mongo 3.0 Java driver, spring.data.mongodb.host and spring.data.mongodb.port are not supported. In such cases, spring.data.mongodb.uri should be used to provide all of the configuration.

@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: mod1-agm-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false
+
+embedded:
+  postgresql:
+    docker-image: 'bitnami/postgresql:13.3.0'
+    wait-timeout-in-seconds: 40
+    command: '/opt/bitnami/scripts/postgresql/run.sh'
+    startupLogCheckRegex: '.*database system is ready to accept connections.*'
+
+  kafka:
+    enabled: true
+    dockerImageVersion: '7.0.0'
+    topicsToCreate: nonSecureTopic,secureTopic,embedded-test-topic
+    secureTopics: secureTopic

@@ -1,0 +1,7 @@
+:toc:
+:icons: font
+:url-quickref:
+
+= Run on Kubernetes
+
+Some kubernetes configuration files are available, these are not verified. But can be uses to run on minicube.

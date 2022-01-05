@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "_meta": {
+    "description": "fluentbit docker logging"
+  },
+  "index_patterns": ["logstash-*"],
+  "data_stream" : {
+    "hidden" : false
+  },
+  "priority": 501,
+  "composed_of": ["logs-docker-settings", "logs-docker-mappings"],
+  "template": {
+    "settings": {
+      "number_of_replicas": 0
+    }
+  }
+}

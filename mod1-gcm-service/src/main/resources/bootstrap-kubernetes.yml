@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    kubernetes:
+      enabled: true
+
+    config:
+      fail-fast: true
+      uri: http://configuration-service.default.svc:8888
+
+    vault:
+      uri: https://vault.default.svc:8200
+      token: ${VAULT_TOKEN}

@@ -1,0 +1,19 @@
+<configuration>
+  <springProperty name="SERVICE_NAME" source="info.app.name"/>
+
+  <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="co.elastic.logging.logback.EcsEncoder">
+      <serviceName>${SERVICE_NAME:-boot-strapping-application}</serviceName>
+    </encoder>
+  </appender>
+  <logger name="jsonLogger" additivity="false" level="DEBUG">
+    <appender-ref ref="consoleAppender"/>
+  </logger>
+
+  <!-- camunda -->
+  <logger name="org.camunda" level="info"/>
+
+  <root level="INFO">
+    <appender-ref ref="consoleAppender"/>
+  </root>
+</configuration>

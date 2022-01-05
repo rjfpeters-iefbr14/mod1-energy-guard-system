@@ -1,0 +1,87 @@
+info:
+  app:
+    name: @project.name@
+    version: @project.version@
+    description: "@project.description@"
+    java: @java.version@
+    build-time: @maven.build.timestamp@
+    terms-of-service: https://yggdrasill.tld/terms/
+    contact:
+      name: Yggdrasill API Team
+      email: apiteam@yggdrasill.tld
+      url: https://yggdrasill.tld/team
+    license:
+      name: Apache 2.0
+      url: https://www.apache.org/licenses/LICENSE-2.0.html
+  component: contingency-guard-system
+---
+server:
+  port: 8092
+
+spring:
+  application:
+    name: mod1-pcm-service
+
+  jmx:
+    default_domain: pcm.service
+
+  output.ansi.enabled: DETECT
+
+  kafka:
+    bootstrap-servers: localhost:9092
+#     properties:
+#       security.protocol: SASL_SSL
+#       sasl.mechanism: SCRAM-SHA-256
+# #       sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${USERNAME}" password="${PASSWORD}";
+    consumer:
+      group-id: pcm-group
+#      auto-offset-reset: latest
+#         value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#         properties.spring.json.trusted.packages: tld.yggdrasill.kafka
+#       producer:
+#         value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+app:
+  kafka:
+    producer:
+      topic: net-service-topic
+    consumer:
+      topic: net-service-topic
+
+  client:
+    contingency-service:
+      url: "http://localhost:8094"
+
+#add the following configuration to change default port
+management:
+  server:
+    port: 9090
+
+  info:
+    git:
+      mode: 'full'
+
+  endpoints:
+    web:
+      base-path: '/manage'
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+    #health support for kubernetes, readiness and liveliness
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: "readinessState"
+        liveliness:
+          include: "livelinessState"
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+
+logging:
+  level:
+    ROOT: INFO

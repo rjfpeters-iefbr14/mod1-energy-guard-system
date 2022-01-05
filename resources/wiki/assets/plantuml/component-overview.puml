@@ -1,0 +1,21 @@
+@startuml
+
+interface "Data Access" as DA
+interface "Kafka Access" as KA
+
+DA - [GCM]
+[GCM] ..> HTTP : use
+
+[AGM]
+[AGM] --> [GCM]
+KA - [AGM]
+
+[DSA]
+[DSA] --> [GCM]
+KA - [DSA]
+
+[PCM]
+[PCM] --> [GCM]
+KA - [DSA]
+
+@enduml

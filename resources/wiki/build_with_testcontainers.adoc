@@ -1,0 +1,13 @@
+= Using Testcontainers
+:toc:
+:icons: font
+:url-quickref:
+
+activate the following test containers for integration tests:
+
+- testcontainer - mongo
+- testcontainer - kafka
+
+== Relevant Articles
+* https://www.testcontainers.org/
+* https://github.com/testcontainers/testcontainers-spring-boot

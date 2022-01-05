@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      enabled: true
+
+    kubernetes:
+      enabled: false

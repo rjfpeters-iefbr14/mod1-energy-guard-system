@@ -1,0 +1,46 @@
+= Camunda
+:toc:
+:icons: font
+:url-quickref:
+
+
+== Business Key
+
+A business key is a domain-specific identifier of a process instance. Compare this to the process instance id, which is a Camunda-generated UUID.
+
+Let’s consider an example: We have a process that ships book orders and we manage our orders
+in a secondary database where every order is identified by an id. Now, when we start the process
+to ship the order we can link the process instance directly to the order by using the order id
+as the business key.
+
+Instead of using the business key, we can also link process instances to domain objects via
+process variables.
+The business key is special for two reasons:
+
+Performance: Querying by business key is often more efficient than querying by a variable value.
+For example, it does not require a join with the variables table.
+Visibility: The business key is displayed prominently in applications like Camunda Cockpit.
+
+
+
+== Throwing and Handling BPMN Errors
+
+* https://camunda.com/best-practices/dealing-with-problems-and-exceptions/#_throwing_and_handling_strong_bpmn_errors_strong
+
+
+
+
+
+== Camunda Modeller plugins
+
+https://emsbach.medium.com/the-best-free-plugins-for-camundas-bpmn-2-modeler-14eee0c9fdd2
+
+https://github.com/NPDeehan/Camunda-Modeler-Best-Plugins-List
+
+
+* git clone https://github.com/camunda/camunda-modeler-plugins.git
+* git clone https://github.com/camunda/camunda-modeler-linter-plugin.git
+* git clone https://github.com/viadee/camunda-modeler-tooltip-plugin.git
+* git clone https://github.com/camunda-consulting/code.git
+* git clone https://github.com/umb/camunda-modeler-property-info-plugin.git
+* git clone https://github.com/bpmn-io/bpmn-js-token-simulation-plugin.git

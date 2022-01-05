@@ -1,0 +1,51 @@
+= Build
+:toc:
+:icons: font
+:url-quickref:
+
+== Setup
+Prerequisites: (on linux by sdk http://sdkman.io)
+- install maven
+- install jdk 17
+- install docker
+- install docker-compose
+
+
+== Building
+The signing of a jar archive is enabled, to use this please add gpg.keyname in the setting.xml
+
+[source,xml]
+----
+    <profile>
+      <id>my_profile_id</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <gpg.keyname>your.keyname</gpg.keyname>
+      </properties>
+    </profile>
+----
+
+or disable this setting.
+
+Then build the packages, default enabled is packaging to a docker images.
+
+[source,shell script]
+mvn clean package
+
+To disable some maven steps
+
+* -Ddocker.skip
+* -DskipITs
+* -Dgpg.skip
+
+== Getting Started
+
+Up front the module mod1-cgs-api needs to be build, this contains the json-schema to generate the kafka-topics.
+
+[source,shell script]
+mvn clean install
+
+After locally installing the artifact, then the other modules can be build.
+

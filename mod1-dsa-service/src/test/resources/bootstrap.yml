@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: mod1-dsa-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false
+
+embedded:
+  kafka:
+    enabled: true
+    dockerImageVersion: '7.0.0'
+    topicsToCreate: nonSecureTopic,secureTopic,embedded-test-topic
+    secureTopics: secureTopic

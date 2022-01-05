@@ -1,0 +1,12 @@
+info.app.name: dynamic-safety-analyzer
+---
+spring:
+  application:
+    name: mod1-dsa-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false

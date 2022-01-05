@@ -1,0 +1,34 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mod1-gcm
+  labels:
+    app.kubernetes.io/name: mod1-gcm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - pods
+  - endpoints
+  - namespaces
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mod1-gcm
+  labels:
+    app.kubernetes.io/name: mod1-gcm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mod1-gcm
+subjects:
+- kind: ServiceAccount
+  name: default

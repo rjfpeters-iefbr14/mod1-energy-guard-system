@@ -1,0 +1,16 @@
+= Index
+:toc:
+:icons: font
+:url-quickref:
+
+
+include::.asciidoctorconfig[]
+
+== Component Overview
+.plantuml component diagram
+[plantuml, "{plantUMLDir}mindmap2", png, align=center]
+----
+include::assets/plantuml/component-overview.puml[]
+----
+
+

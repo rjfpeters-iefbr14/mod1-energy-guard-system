@@ -1,0 +1,6 @@
+= JSON
+
+
+== Relevant Aricles
+https://www.jsonschemavalidator.net/
+

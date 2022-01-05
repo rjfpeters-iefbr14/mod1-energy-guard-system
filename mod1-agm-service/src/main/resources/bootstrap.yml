@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: mod1-agm-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false

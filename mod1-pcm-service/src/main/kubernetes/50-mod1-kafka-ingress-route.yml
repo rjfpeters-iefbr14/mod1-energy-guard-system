@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mod-kafka-department
+  labels:
+    app.kubernetes.io/name: kafka-system
+spec:
+  entryPoints:
+    - http
+  routes:
+    - kind: Rule
+      match: Host(`kafka.apps.yggdrasill.tld`) && PathPrefix(`/kafka`)
+#      middlewares:
+#        - name: deo-stripprefix
+      services:
+        - name: mod-kafka-service
+          port: 8091

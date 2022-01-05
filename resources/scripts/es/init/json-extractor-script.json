@@ -1,0 +1,10 @@
+{
+  "description": "springboot logging processing",
+  "processors": [
+    {
+      "script": {
+        "source" : ""
+      }
+    }
+  ]
+}

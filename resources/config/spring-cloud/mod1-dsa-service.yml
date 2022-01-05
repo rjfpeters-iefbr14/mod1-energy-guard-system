@@ -1,0 +1,27 @@
+#info.app.description: mod1-dsa-service
+---
+spring:
+  kafka:
+    bootstrap-servers: kafka.docker.svc:29092
+#     producer:
+#       bootstrap.servers: kafka.docker.svc
+#     consumer:
+#       bootstrap.servers: kafka.docker.svc
+
+app:
+#  kafka:
+#    producer:
+#      topic: net-service-topic
+#    consumer:
+#      topic: net-service-topic
+
+  client:
+    contingency-service:
+      url: "http://gcm-service.docker.svc:8094"
+
+logging:
+  level:
+    ROOT: INFO
+    tld.yggdrasill.service: DEBUG
+
+    org.springframework.web: INFO

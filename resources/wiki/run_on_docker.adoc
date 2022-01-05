@@ -1,0 +1,25 @@
+= Run on Docker
+
+== energy guard experiment
+[source,shell script]
+docker compose up -d zookeeper kafka schema-registry
+
+[source,shell script]
+docker compose up configuration postgres mongodb
+
+[source,shell script]
+docker compose up fluentbit elasticsearch apm-server metricbeat heartbeat kibana
+
+
+The following service are available:
+
+|===
+|Item |Url |Remarks
+| SpringCloud Config        | http://localhost:8888              |
+| Kafka                     | http://localhost:18093/            | admin:admin
+| Kibana                    | http://localhost:5601/             |
+| Camunda                   | http://localhost:18093/            | admin:admin
+|===
+
+
+

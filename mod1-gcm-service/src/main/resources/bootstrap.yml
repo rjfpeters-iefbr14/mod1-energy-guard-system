@@ -1,0 +1,21 @@
+info.app.name: grid-contingency-manager
+---
+spring:
+  application:
+    name: mod1-gcm-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false
+
+    vault:
+      enabled: true
+      uri: http://localhost:8200
+      scheme: http
+      connection-timeout: 5000
+      read-timeout: 15000
+
+      token: 00000000-0000-0000-0000-000000000000

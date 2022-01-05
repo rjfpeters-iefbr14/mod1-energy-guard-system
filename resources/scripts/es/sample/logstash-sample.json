@@ -1,0 +1,47 @@
+[
+  {
+    "_index": ".ds-logstash-2021.12.21-2021.12.21-000001",
+    "_type": "_doc",
+    "_id": "AaDA230BeJF7cVBctVsm",
+    "_version": 1,
+    "_score": 1,
+    "_source": {
+      "@timestamp": "2021-12-21T06:56:14.238Z",
+      "log.level": "INFO",
+      "message": "{\"mRID\":\"bc070161-bb2c-4d2c-8119-4d409e4c4f04\",\"name\":\"Neerijnen\"}",
+      "ecs.version": "1.2.0",
+      "service.name": "mod1-dsa-service",
+      "event.dataset": "mod1-dsa-service",
+      "process.thread.name": "org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1",
+      "log.logger": "tld.yggdrasill.services.dsa.api.GuardEventListener",
+      "transaction.id": "3429fdc6b44a4ab8",
+      "traceId": "3a3b6a650484398d",
+      "spanId": "06b94e8f197c51ec",
+      "trace.id": "dfca78c004f5a96bcf61287020be38f8"
+    }
+  },
+  {
+    "_index": ".ds-logstash-2021.12.21-2021.12.21-000001",
+    "_type": "_doc",
+    "_id": "AaDA230BeJF7cVBctVsm",
+    "_version": 1,
+    "_score": 1,
+    "_source": {
+      "@timestamp": "2021-12-21T06:56:18.241Z",
+      "log.level": "INFO",
+      "message": "Sent sample message: [{\"messageId\":\"4cb56a73-dda1-44e1-9e65-2e3e0648b8dc\",\"createdDateTime\":1640069778,\"payload\":{\"mRID\":\"25cf15bb-7649-4c1b-953b-3bb9e94630e5\",\"metaInf\":{\"activity\":{\"startAtTime\":\"2021-12-21T06:56:14.23849603\",\"endAtTime\":\"2021-12-21T06:56:18.239396908\"}},\"contingency\":{\"mRID\":\"bc070161-bb2c-4d2c-8119-4d409e4c4f04\",\"name\":\"Neerijnen\"},\"scenarios\":[{\"mRID\":\"401417fd-b607-48e0-abf9-fa1e3dc1d60f\",\"type\":\"safety-assessment\"}]}}] to net-service-topic",
+      "ecs.version": "1.2.0",
+      "service.name": "mod1-dsa-service",
+      "event.dataset": "mod1-dsa-service",
+      "process.thread.name": "org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1",
+      "log.logger": "tld.yggdrasill.services.dsa.client.GridServiceProducerService",
+      "transaction.id": "3429fdc6b44a4ab8",
+      "traceId": "3a3b6a650484398d",
+      "spanId": "06b94e8f197c51ec",
+      "trace.id": "dfca78c004f5a96bcf61287020be38f8"
+    }
+  }
+]
+
+
+

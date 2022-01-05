@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "app.kafka.producer.topic",
+      "type": "java.lang.String",
+      "description": "Description for app.kafka.producer.topic."
+    },
+    {
+      "name": "app.kafka.consumer.topic",
+      "type": "java.lang.String",
+      "description": "Description for app.kafka.consumer.topic."
+    },
+    {
+      "name": "app.client.contingency-service.url",
+      "type": "java.lang.String",
+      "description": "Description for app.client.contingency-service.url."
+    }
+  ]
+}

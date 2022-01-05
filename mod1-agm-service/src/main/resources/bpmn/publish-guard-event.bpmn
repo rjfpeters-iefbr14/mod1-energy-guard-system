@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0z80kdj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:message id="Message_0wgic6x" name="NoCongestionDetected" />
+  <bpmn:message id="Message_1sph50d" name="WaitForAnalysis" />
+  <bpmn:category id="Category_017j12w">
+    <bpmn:categoryValue id="CategoryValue_1htnmvs" value="safety &#38; risk assessment" />
+  </bpmn:category>
+  <bpmn:collaboration id="Collaboration_0g04jlr">
+    <bpmn:participant id="Participant_0h6c5jb" name="monitoring grid safety and balans" processRef="ContingencyGuard" />
+    <bpmn:group id="Group_1g5mnh6" categoryValueRef="CategoryValue_1htnmvs" />
+    <bpmn:group id="Group_03lizw5" categoryValueRef="CategoryValue_1q7hw5e" />
+  </bpmn:collaboration>
+  <bpmn:process id="ContingencyGuard" name="monitoring grid safety and balans" isExecutable="true" camunda:versionTag="1.0">
+    <bpmn:startEvent id="Event_07qwltf" name="Every 5min">
+      <bpmn:outgoing>Flow_1vgpg9r</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0jozk50">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT5M</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:receiveTask id="Activity_09c0mdl" name="Observe PCM Notification">
+      <bpmn:incoming>Flow_1ljsex0</bpmn:incoming>
+      <bpmn:outgoing>Flow_0o76y21</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sendTask id="Activity_05xc656" name="Start Safety Assessment&#10;" camunda:delegateExpression="#{publishSafetyAssessmentAdapter}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="contingencyName">Neerijnen</camunda:inputParameter>
+          <camunda:inputParameter name="contingencyId">bc070161-bb2c-4d2c-8119-4d409e4c4f04</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1vgpg9r</bpmn:incoming>
+      <bpmn:outgoing>Flow_12q9f94</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="Event_1txb6ha" name="Solution Fullfilment Complete">
+      <bpmn:incoming>Flow_0o76y21</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:eventBasedGateway id="Gateway_00gwren" name="Congestion Determinator">
+      <bpmn:incoming>Flow_1annj37</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xe3i3o</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0t92ski</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:intermediateCatchEvent id="Event_0pp2itj" name="CongestionDetected">
+      <bpmn:incoming>Flow_0xe3i3o</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ljsex0</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1bnwx11" messageRef="Message_1iimnd5" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:receiveTask id="Activity_005bwke" name="Wait for Analysis" messageRef="Message_1sph50d">
+      <bpmn:incoming>Flow_12q9f94</bpmn:incoming>
+      <bpmn:outgoing>Flow_1annj37</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_1vgpg9r" sourceRef="Event_07qwltf" targetRef="Activity_05xc656" />
+    <bpmn:sequenceFlow id="Flow_1annj37" sourceRef="Activity_005bwke" targetRef="Gateway_00gwren" />
+    <bpmn:sequenceFlow id="Flow_12q9f94" sourceRef="Activity_05xc656" targetRef="Activity_005bwke" />
+    <bpmn:sequenceFlow id="Flow_0xe3i3o" sourceRef="Gateway_00gwren" targetRef="Event_0pp2itj" />
+    <bpmn:sequenceFlow id="Flow_1ljsex0" sourceRef="Event_0pp2itj" targetRef="Activity_09c0mdl" />
+    <bpmn:sequenceFlow id="Flow_0o76y21" sourceRef="Activity_09c0mdl" targetRef="Event_1txb6ha" />
+    <bpmn:endEvent id="Event_0ebg6p9" name="Guard Process Complete">
+      <bpmn:incoming>Flow_1vhn28s</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="Event_108aicr" attachedToRef="Activity_05xc656">
+      <bpmn:compensateEventDefinition id="CompensateEventDefinition_00jjoh1" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Activity_0ke3bgn" name="Safety Assessment Timed Out" isForCompensation="true" camunda:expression="#{true}" />
+    <bpmn:sequenceFlow id="Flow_1vhn28s" sourceRef="Event_0sxawkg" targetRef="Event_0ebg6p9" />
+    <bpmn:sequenceFlow id="Flow_0t92ski" sourceRef="Gateway_00gwren" targetRef="Event_0sxawkg" />
+    <bpmn:intermediateCatchEvent id="Event_0sxawkg" name="NoCongestionDetected">
+      <bpmn:incoming>Flow_0t92ski</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vhn28s</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0boua0o" messageRef="Message_0wgic6x" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:association id="Association_0s0zx1x" associationDirection="One" sourceRef="Event_108aicr" targetRef="Activity_0ke3bgn" />
+  </bpmn:process>
+  <bpmn:category id="Category_1kfj1wp">
+    <bpmn:categoryValue id="CategoryValue_1q7hw5e" value="solution fullfilment" />
+  </bpmn:category>
+  <bpmn:message id="Message_1iimnd5" name="CongestionDetected" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0g04jlr">
+      <bpmndi:BPMNShape id="Participant_0h6c5jb_di" bpmnElement="Participant_0h6c5jb" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1690" height="450" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0t92ski_di" bpmnElement="Flow_0t92ski">
+        <di:waypoint x="740" y="305" />
+        <di:waypoint x="740" y="140" />
+        <di:waypoint x="882" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vhn28s_di" bpmnElement="Flow_1vhn28s">
+        <di:waypoint x="918" y="140" />
+        <di:waypoint x="1782" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o76y21_di" bpmnElement="Flow_0o76y21">
+        <di:waypoint x="1060" y="330" />
+        <di:waypoint x="1782" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ljsex0_di" bpmnElement="Flow_1ljsex0">
+        <di:waypoint x="868" y="330" />
+        <di:waypoint x="960" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xe3i3o_di" bpmnElement="Flow_0xe3i3o">
+        <di:waypoint x="765" y="330" />
+        <di:waypoint x="832" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12q9f94_di" bpmnElement="Flow_12q9f94">
+        <di:waypoint x="470" y="330" />
+        <di:waypoint x="510" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1annj37_di" bpmnElement="Flow_1annj37">
+        <di:waypoint x="610" y="330" />
+        <di:waypoint x="715" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vgpg9r_di" bpmnElement="Flow_1vgpg9r">
+        <di:waypoint x="250" y="238" />
+        <di:waypoint x="250" y="330" />
+        <di:waypoint x="370" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1ypmi2b_di" bpmnElement="Event_07qwltf" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="232" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="222" y="178" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bt5289_di" bpmnElement="Activity_09c0mdl">
+        <dc:Bounds x="960" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o0irm0_di" bpmnElement="Activity_05xc656">
+        <dc:Bounds x="370" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1txb6ha_di" bpmnElement="Event_1txb6ha" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="1782" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1778" y="355" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_19z9yza_di" bpmnElement="Gateway_00gwren" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="715" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="710" y="362" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pp2itj_di" bpmnElement="Event_0pp2itj" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="832" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="808" y="355" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1elocqp_di" bpmnElement="Activity_005bwke">
+        <dc:Bounds x="510" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ebg6p9_di" bpmnElement="Event_0ebg6p9" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="1782" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1763" y="165" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0h0lyeu_di" bpmnElement="Activity_0ke3bgn">
+        <dc:Bounds x="460" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0sxawkg_di" bpmnElement="Event_0sxawkg" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="882" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="859" y="92" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1r6vkhm_di" bpmnElement="Event_108aicr">
+        <dc:Bounds x="402" y="352" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0s0zx1x_di" bpmnElement="Association_0s0zx1x">
+        <di:waypoint x="420" y="388" />
+        <di:waypoint x="420" y="430" />
+        <di:waypoint x="460" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Group_1g5mnh6_di" bpmnElement="Group_1g5mnh6" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="330" y="190" width="460" height="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="529" y="197" width="61" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_03lizw5_di" bpmnElement="Group_03lizw5" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="800" y="190" width="770" height="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1143" y="197" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

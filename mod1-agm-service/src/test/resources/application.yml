@@ -1,0 +1,63 @@
+spring:
+
+  kafka:
+    bootstrap-servers: ${embedded.kafka.brokerList}
+    producer:
+      bootstrap.servers: ${embedded.kafka.brokerList}
+#     properties:
+#       ssl.endpoint.identification.algorithm:
+#       security.protocol: SASL_PLAINTEXT
+#       sasl.mechanism: PLAIN
+# #      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required \
+# #       username="${embedded.kafka.saslPlaintext.user}" \
+# #       password="${embedded.kafka.saslPlaintext.password}";
+#     producer:
+#       retries: 0
+#       acks: all
+#       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+#     consumer:
+#       auto-offset-reset: earliest
+#       group-id: yggdrasill-group
+#       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  datasource:
+    type: org.postgresql.ds.PGSimpleDataSource
+    url: "jdbc:postgresql://${embedded.postgresql.host}:${embedded.postgresql.port}/${embedded.postgresql.schema}"
+    username: ${embedded.postgresql.user}
+    password: ${embedded.postgresql.password}
+
+app:
+  kafka:
+    producer:
+      topic: embedded-test-topic
+    consumer:
+      topic: embedded-test-topic
+
+camunda:
+  bpm:
+    admin-user:
+      firstName: Kermit
+      password: admin
+      last-name: The Frog
+      id: admin
+    filter:
+      create: All tasks
+    history-level: full
+    enabled: 'true'
+    application:
+      delete-upon-undeploy: false
+      scan-for-process-definitions: false
+      deploy-changed-only: true
+      resume-previous-versions: true
+      resume-previous-by: a value
+    job-execution:
+      enabled: false
+    metrics:
+      enabled: false
+      db-reporter-activate: false
+
+logging:
+  level:
+    root: INFO

@@ -1,0 +1,25 @@
+Object xlog = Processors.json(ctx['xlog']);
+ctx['log'] = xlog;
+
+ctx['message'] = ctx['log']['message'];
+ctx['service.name'] = ctx['log']['service.name'];
+ctx['host.name'] = 'pavlopetri';
+
+ctx['timestamp.original'] = ctx['@timestamp'];
+ctx['@timestamp'] = ctx['log']['@timestamp'];
+
+ctx['event.created'] = ctx['log']['@timestamp'];
+ctx['event.dataset'] = ctx['log']['event.dataset'];
+ctx['event.module'] = ctx['log']['event.dataset'];
+ctx['event.kind'] = 'event';
+ctx['event.type'] = ctx['log']['log.level'];
+ctx['event.original'] = ctx['xlog'];
+
+ctx['log.level'] = ctx['log']['log.level'];
+ctx['log.logger'] = ctx['log']['log.logger'];
+ctx['log.file.path'] = 'log-back.json';
+
+ctx['trace.id'] = ctx['log']['trace.id'];
+ctx['transaction.id'] = ctx['log']['transaction.id'];
+ctx['ecs.version'] = ctx['log']['ecs.version'];
+ctx.remove('xlog');

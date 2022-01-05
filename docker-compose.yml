@@ -1,0 +1,357 @@
+services:
+  configuration:
+    image: 'hyness/spring-cloud-config-server:3.0.5-jdk11'
+    container_name: configuration-service
+#    restart: unless-stopped
+    mem_limit: 1g
+    hostname: configuration-service
+    networks:
+      default:
+        aliases:
+          - configuration-service.docker.svc
+    ports:
+      - ${CONFIG_PORT:-8888}:8888
+    volumes:
+      - ./resources/config/spring-cloud:/config
+    environment:
+      - JAVA_OPTS=-Dspring.cloud.kubernetes.enabled=false
+      - SPRING_PROFILES_ACTIVE=native
+
+  postgres:
+    image: 'postgres:latest'
+    container_name: postgres
+    networks:
+      default:
+        aliases:
+          - postgres.docker.svc
+    ports:
+      - ${CONFIG_PORT:-5432}:5432
+    environment:
+      POSTGRES_USER: username # The PostgreSQL user (useful to connect to the database)
+      POSTGRES_PASSWORD: password # The PostgreSQL password (useful to connect to the database)
+      POSTGRES_DB: default_database # The PostgreSQL default database (automatically created at first launch)
+
+  mongodb:
+    image: 'library/mongo:4-bionic'
+    container_name: mongodb
+    networks:
+      default:
+        aliases:
+          - mongodb.docker.svc
+    ports:
+      - ${MONGO_PORT:-27017}:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    healthcheck:
+      test: ["CMD", "mongo --norc --quiet --host=hostname:27017 <<< 'db.runCommand('ping').ok'"]
+      start_period: 10s
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  vault:
+    image: 'vault:1.8.4'
+    container_name: vault
+    networks:
+      default:
+        aliases:
+          - vault.docker.svc
+    cap_add:
+      - "IPC_LOCK"
+    ports:
+      - ${VAULT_PORT:-8200}:8200
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=00000000-0000-0000-0000-000000000000
+# enable external configuration to run in server mode
+#     volumes:
+#       - ./resources/vault/config:/vault/config
+#       - ./resources/vault/policies:/vault/policies
+#     entrypoint: "vault server -config=/vault/config/vault-config.json"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${KAFKA_VERSION:-7.0.0}
+    container_name: zookeeper
+    hostname: zookeeper
+    networks:
+      default:
+        aliases:
+          - zookeeper.docker.svc
+    ports:
+      - ${ZOOKEEPER_PORT:-32181}:32181
+    environment:
+        ZOOKEEPER_CLIENT_PORT: 32181
+        ZOOKEEPER_TICK_TIME: 2000
+    labels:
+      - io.confluent.docker.testing=true
+
+  kafka:
+    image: confluentinc/cp-kafka:${KAFKA_VERSION:-7.0.0}
+    container_name: kafka
+    hostname: kafka
+    networks:
+      default:
+        aliases:
+          - kafka.docker.svc
+    ports:
+      - ${KAFKA_PORT:-9092}:9092
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+    labels:
+      - io.confluent.docker.testing=true
+    depends_on:
+      - zookeeper
+
+  init-kafka:
+    image: confluentinc/cp-kafka:${KAFKA_VERSION:-7.0.0}
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic net-service-topic --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
+    depends_on:
+      - kafka
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:${KAFKA_VERSION:-7.0.0}
+    container_name: schema-registry
+    hostname: schema-registry
+    networks:
+      default:
+        aliases:
+          - schema-registry.docker.svc
+    ports:
+      - ${REGISTRY_PORT:-8081}:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:29092
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    labels:
+      - io.confluent.docker.testing=true
+    depends_on:
+      - zookeeper
+      - kafka
+
+  #elasticsearch container
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.16.2}
+    container_name: elasticsearch
+    memswap_limit: 0
+    mem_limit: 1536m
+    cap_add: ['IPC_LOCK']
+    ports:
+      - ${ELASTIC_PORT:-9200}:9200
+      - 9300:9300
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms1024m -Xmx1024m"
+      cluster.name: "elasticsearch-net-service"
+    healthcheck:
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+      retries: 20
+      interval: 10s
+
+  #kibana container
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-7.16.2}
+    container_name: kibana
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+    ports:
+      - 5601:5601
+    environment:
+      NEWSFEED_ENABLED: 'false'
+      TELEMETRY_OPTIN: 'false'
+      TELEMETRY_ENABLED: 'false'
+      SERVER_MAXPAYLOADBYTES: 4194304
+      KIBANA_AUTOCOMPLETETIMEOUT: 3000
+      KIBANA_AUTOCOMPLETETERMINATEAFTER: 2500000
+    healthcheck:
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+      retries: 20
+      interval: 10s
+
+  #heartbeat container
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELASTIC_VERSION:-7.16.2}
+    container_name: heartbeat
+    hostname: "pavlopetri"
+    user: root #To read the docker socket
+    volumes:
+      #Mount the Heartbeat configuration so users can make edits.
+      - ./resources/config/heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+      #Allows us to report on docker from the hosts information.
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: heartbeat -e -strict.perms=false
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+  #metricbeat container
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:${ELASTIC_VERSION:-7.16.2}
+    container_name: metricbeat
+    hostname: "pavlopetri"
+    #network_mode: host
+    user: root
+    cap_add: ['SYS_PTRACE','DAC_READ_SEARCH']
+    volumes:
+      #Mount the metricbeat configuration so users can make edits.
+      - ./resources/config/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+      #Mount the modules.d directory into the container. This allows user to potentially make changes to the modules and they will be dynamically loaded.
+      - ./resources/config/metricbeat/modules.d/:/usr/share/metricbeat/modules.d/
+      #The commented sections below enable Metricbeat to monitor the Docker host rather than the Metricbeat container. These are used by the system module.
+      - type: bind
+        source: /proc
+        target: /hostfs/proc
+        read_only: true
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /hostfs/sys/fs/cgroup
+        read_only: true
+      #We mount the host filesystem, so we can report on disk usage with the system module.
+      - type: bind
+        source: /
+        target: /hostfs:ro
+        read_only: true
+      #Allows us to report on docker from the hosts' information.
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: metricbeat -e -system.hostfs=/hostfs -strict.perms=false
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+  #apm-server container
+  apm-server:
+    image: docker.elastic.co/apm/apm-server-oss:${ELASTIC_VERSION:-7.16.2}
+    container_name: apm-server
+    cap_add: [ 'CHOWN', 'DAC_OVERRIDE', 'SETGID', 'SETUID' ]
+    cap_drop: [ 'ALL' ]
+    ports:
+      - ${APM_PORT:-8200}:8200
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+      kibana: { condition: service_healthy }
+    healthcheck:
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+      interval: 10s
+      retries: 12
+
+  #fluentbit container
+  fluentbit:
+    image: fluent/fluent-bit
+    container_name: "fluent-bit"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - type: bind
+        source: ./resources/config/fluent-bit/fluent-bit.conf
+        target: /fluent-bit/etc/fluent-bit.conf
+        read_only: true
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+  #dynamic-safety-analyzer container
+  dsa-service:
+    image: yggdrasill.tld/mod1-dsa-service
+    container_name: dsa-service
+    mem_limit: 1024m
+    networks:
+      default:
+        aliases:
+          - dsa-service.docker.svc
+    ports:
+      - 18091:8091
+      - 19091:9090
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=docker
+    depends_on:
+      - configuration
+      - kafka
+    logging:
+      driver: fluentd
+      options:
+        tag: dsa-service
+
+  #power-capacity-manager container
+  pcm-service:
+    image: yggdrasill.tld/mod1-pcm-service
+    container_name: pcm-service
+    mem_limit: 1024m
+    networks:
+      default:
+        aliases:
+          - pcm-service.docker.svc
+    ports:
+      - 18092:8092
+      - 19092:9090
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=docker
+    depends_on:
+      - configuration
+      - kafka
+      - fluentbit
+    logging:
+      driver: fluentd
+      options:
+        tag: pcm-service
+
+  agm-service:
+    image: yggdrasill.tld/mod1-agm-service
+    container_name: agm-service
+    hostname: agm-host
+    mem_limit: 1536m
+    networks:
+      default:
+        aliases:
+          - agm-service.docker.svc
+    ports:
+      - 18093:8093
+      - 19093:9090
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=docker
+    depends_on:
+      - configuration
+      - kafka
+    logging:
+      driver: fluentd
+      options:
+        tag: agm-service
+
+  gcm-service:
+    image: yggdrasill.tld/mod1-gcm-service
+    container_name: gcm-service
+    mem_limit: 1024m
+    networks:
+      default:
+        aliases:
+          - gcm-service.docker.svc
+    ports:
+      - 18094:8094
+      - 19094:9090
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=docker
+    depends_on:
+      - configuration
+      - kafka
+      - fluentbit
+    logging:
+      driver: fluentd
+      options:
+        tag: gcm-service
+
+networks: {stack: {}}

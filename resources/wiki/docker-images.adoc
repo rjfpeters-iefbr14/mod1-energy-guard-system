@@ -1,0 +1,29 @@
+= Docker Images
+:toc:
+:icons: font
+:url-quickref:
+
+
+The version is specified in the .env file for the elastic-stack and the kafka stack.
+
+kafka
+
+* https://hub.docker.com/r/confluentinc
+
+elastic
+
+* https://hub.docker.com/_/elasticsearch/
+
+postgres
+
+* https://hub.docker.com/_/postgres
+
+mongo
+
+* https://hub.docker.com/_/mongo
+
+
+The base images for java application is
+
+* openjdk:17-jdk-alpine3.14 (https://hub.docker.com/_/openjdk)
+

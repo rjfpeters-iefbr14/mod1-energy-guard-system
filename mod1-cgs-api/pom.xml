@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tld.yggdrasill.contingency.guard</groupId>
+  <artifactId>mod1-cgs-api</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>autonomous-net-service</name>
+  <description>Sample Kafka/Camunda system :: autonomous-net-service</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>17</java.version>
+
+    <jackson-databind.version>2.12.5</jackson-databind.version>
+
+    <!-- plugins -->
+    <maven-compiler.version>3.8.1</maven-compiler.version>
+    <git-commit-id.version>4.9.9</git-commit-id.version>
+    <maven-jsonschema2pojo.version>1.1.1</maven-jsonschema2pojo.version>
+
+    <!-- GPG -->
+    <gpg.keyname>2AC91B9523D4A0CF</gpg.keyname>
+    <gpg.defaultKeyring>false</gpg.defaultKeyring>
+    <gpg.useagent>true</gpg.useagent>
+    <gpg.lockMode>never</gpg.lockMode>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-databind.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler.version}</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>${git-commit-id.version}</version>
+        <configuration>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+          <commitIdGenerationMode>full</commitIdGenerationMode>
+          <!--  human-readable part of the version number -->
+          <dateFormat>yyyyMMdd-HHmmss</dateFormat>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>${maven-jsonschema2pojo.version}</version>
+        <configuration>
+          <generateBuilders>true</generateBuilders>
+          <serializable>true</serializable>
+          <useTitleAsClassname>true</useTitleAsClassname>
+          <sourceDirectory>${basedir}/src/main/resources/schemas</sourceDirectory>
+          <targetPackage>tld.yggdrasill.services.cgs.model</targetPackage>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

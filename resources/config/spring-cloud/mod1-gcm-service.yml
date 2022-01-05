@@ -1,0 +1,13 @@
+info.app.name: mod1-gcm-service
+---
+spring:
+  data:
+    mongodb:
+      host: mongodb.docker.svc
+
+logging:
+  level:
+    ROOT: INFO
+    tld.yggdrasill.service: DEBUG
+
+    org.springframework.web: INFO

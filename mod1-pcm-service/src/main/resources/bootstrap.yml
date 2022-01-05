@@ -1,0 +1,12 @@
+info.app.name: power-capacity-manager
+---
+spring:
+  application:
+    name: mod1-pcm-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false

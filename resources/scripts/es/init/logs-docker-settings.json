@@ -1,0 +1,14 @@
+{
+  "template": {
+    "settings": {
+      "index.default_pipeline": "json_extractor",
+      "index.lifecycle.name": "logs-docker",
+      "index.lifecycle.rollover_alias": "logs-docker"
+    },
+    "aliases": {
+      "logs-docker": {
+        "is_write_index": true
+      }
+    }
+  }
+}

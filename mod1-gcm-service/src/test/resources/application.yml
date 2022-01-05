@@ -1,0 +1,34 @@
+spring:
+  data:
+    mongodb:
+# -- the uri can not be combined with the explicit settings
+#      uri: mongodb://${embedded.mongodb.username}:${embedded.mongodb.password}@${embedded.mongodb.host}:${embedded.mongodb.port}/${embedded.mongodb.database}?authSource=admin&authMechanism=SCRAM-SHA-1
+
+      database: deo-system
+      authentication-database: admin
+# -- these values are provide by the vault
+#      username: ${embedded.mongodb.username}
+#      password: ${embedded.mongodb.password}
+      port: ${embedded.mongodb.port}
+      host: ${embedded.mongodb.host}
+
+# -- resource server configuration properties
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${embedded.keycloak.auth-server-url}/realms/yggdrasill
+          jwk-set-uri: ${embedded.keycloak.auth-server-url}/realms/yggdrasill/protocol/openid-connect/certs
+
+  zipkin:
+    enabled: false
+
+  rabbitmq:
+    host: ${embedded.rabbitmq.host}
+    port: ${embedded.rabbitmq.port}
+    user: ${embedded.rabbitmq.user}
+    password: ${embedded.rabbitmq.password}
+
+logging:
+  level:
+    root: INFO

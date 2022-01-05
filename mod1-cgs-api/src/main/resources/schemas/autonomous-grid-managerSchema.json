@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yggdrasill.tld/schemas/grid-service-event.json",
+  "title": "GridServiceEvent",
+  "description": "'autonomous-grid-manager' file",
+  "type": "object",
+  "properties": {
+    "messageId": {
+      "type": "uuid"
+    },
+    "createdDateTime": {
+      "type": "integer",
+      "format": "utc-millisec"
+    },
+    "producerId": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "mRID": {
+          "type": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "metaInf": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "object",
+              "properties": {
+                "starter": {
+                  "type": "string"
+                },
+                "trigger": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "date-time"
+                }
+              }
+            },
+            "activity": {
+              "type": "object",
+              "properties": {
+                "agent": {
+                  "type": "string"
+                },
+                "startAtTime": {
+                  "type": "string"
+                },
+                "endAtTime": {
+                  "type": "date-time"
+                }
+              }
+            },
+            "end": {
+              "type": "object",
+              "properties": {
+                "ender": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "date-time"
+                }
+              }
+            }
+          }
+        },
+        "contingency": {
+          "type": "object",
+          "properties": {
+            "mRID": {
+              "type": "uuid"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "mRID": {
+                "type": "uuid"
+              },
+              "variant": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "startAtTime": {
+                "type": "date-time"
+              },
+              "forecastDistance": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "_links": {
+          "type": "object",
+          "properties": {
+            "contingencies": {
+              "type": "object",
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$"
+    },
+    "date-time": {
+      "type": "string",
+      "pattern": "^\\d{4}(-\\d\\d(-\\d\\d(T\\d\\d:\\d\\d(:\\d\\d)?(\\.\\d+)?(([+-]\\d\\d:\\d\\d)|Z)?)?)?)?$"
+    }
+  }
+}

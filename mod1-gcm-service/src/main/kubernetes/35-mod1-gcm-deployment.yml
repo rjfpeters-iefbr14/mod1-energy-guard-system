@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mod1-gcm
+  labels:
+    app.kubernetes.io/name: mod1-gcm
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port:   '9090'
+    prometheus.io/path:   '/manage/prometheus'
+spec:
+  type: ClusterIP
+  ports:
+    - name: api
+      port: 8090
+    - name: healthz
+      port: 9090
+  selector:
+    app.kubernetes.io/name: mod1-gcm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mod1-gcm
+  labels:
+    app.kubernetes.io/name: mod1-gcm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mod1-gcm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mod1-gcm
+        blinktShow: 'true'
+        blinktColor: "FFFF00"
+    spec:
+      containers:
+        - name: mod1-gcm
+          image: yggdrasill.tld/mod2-mod1-gcm
+          imagePullPolicy: Always
+          env:
+            - name: TRUSTSTORE_JKS
+              value: /app/keystores/truststore.jks
+            - name: PASSWORD
+              value: 'changeit'
+            - name: SPRING_APPLICATION_JSON
+              value: '{"spring": {"cloud": {"vault": {"ssl": {"trust-store": "file://${TRUSTSTORE_JKS}", "trust-store-password": "${PASSWORD}"}}}}}'
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-tokens
+                  key: VAULT_ROOT_TOKEN
+            - name: KUBERNETES_TRUST_CERTIFICATES
+              value: "true"
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - name: api
+              containerPort: 8090
+            - name: healthz
+              containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /manage/health/readiness
+              port: healthz
+            initialDelaySeconds: 300
+            timeoutSeconds: 10
+            periodSeconds: 3
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /manage/health/liveness
+              port: healthz
+            initialDelaySeconds: 300
+            timeoutSeconds: 10
+            periodSeconds: 8
+            failureThreshold: 1
+          resources:
+#            limits:
+#              cpu: 1500m
+#              memory: 500Mi
+            requests:
+              cpu: 50m
+              memory: 150Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: keystore-volume
+              mountPath: /app/keystores
+      initContainers:
+        - name: pem-to-truststore
+          image: yggdrasill.tld/mod2-mod1-gcm
+          env:
+            - name: cafile
+              value: /var/run/secrets/vault/ca.pem
+            - name: crtfile
+              value: /var/run/secrets/vault/vault.pem
+            - name: truststore_jks
+              value: /var/run/secrets/java.io/keystores/truststore.jks
+            - name: password
+              value: changeit
+          command: ['/bin/sh']
+          args: ['-c', "keytool -importcert -noprompt -alias vault -file $cafile -keystore $truststore_jks -storepass $password; ls -lsa /var/run/secrets/java.io/keystores"]
+          volumeMounts:
+            - name: keystore-volume
+              mountPath: /var/run/secrets/java.io/keystores
+            - name: vault-tls
+              mountPath: /var/run/secrets/vault/
+        - name: validate-truststore
+          image: yggdrasill.tld/mod2-mod1-gcm
+          env:
+            - name: truststore_jks
+              value: /var/run/secrets/java.io/keystores/truststore.jks
+            - name: password
+              value: changeit
+          command: ['/bin/sh']
+          args: ['-c', "keytool -list -keystore $truststore_jks -storepass $password"]
+          volumeMounts:
+            - name: keystore-volume
+              mountPath: /var/run/secrets/java.io/keystores
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: keystore-volume
+          emptyDir: {}
+        - name: vault-tls
+          secret:
+            secretName: vault-tls-cert

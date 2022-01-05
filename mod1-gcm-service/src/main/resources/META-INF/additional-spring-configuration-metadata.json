@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "app.client.camunda.remoteRuntimeService.url",
+      "type": "java.lang.String",
+      "description": "Description for app.client.camunda.remoteRuntimeService.url."
+  }
+] }

@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.5.6</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <groupId>tld.yggdrasill.contingency.guard</groupId>
+  <artifactId>mod1-dsa-service</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>dynamic-safety-analyzer</name>
+  <description>Sample system :: dynamic safety analyzer (dsa-service)</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+
+    <spring-cloud.version>2020.0.4</spring-cloud.version>
+    <problem-spring-web.version>0.27.0</problem-spring-web.version>
+    <elastic-apm-agent.version>1.28.4</elastic-apm-agent.version>
+    <lockback-ecs-encoder.version>1.3.0</lockback-ecs-encoder.version>
+    <logstash-logback-encoder.version>7.0.1</logstash-logback-encoder.version>
+
+    <lombok.version>1.18.22</lombok.version>
+
+    <chaos-monkey-spring-boot.version>2.5.4</chaos-monkey-spring-boot.version>
+    <archunit.version>0.22.0</archunit.version>
+
+    <!-- tests -->
+    <junit-jupiter.version>5.8.2</junit-jupiter.version>
+    <testcontainers-spring-boot.version>2.0.15</testcontainers-spring-boot.version>
+    <testcontainers.version>1.15.2</testcontainers.version>
+
+    <chaos-monkey-spring-boot.version>2.5.4</chaos-monkey-spring-boot.version>
+    <archunit.version>0.22.0</archunit.version>
+
+    <!-- plugins -->
+    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    <maven-spring-boot-plugin.version>2.6.2</maven-spring-boot-plugin.version>
+    <git-commit-id.version>4.9.9</git-commit-id.version>
+    <docker-maven-plugin.version>0.37.0</docker-maven-plugin.version>
+    <pitest.version>1.6.1</pitest.version>
+    <pitest-junit5-plugin.version>0.12</pitest-junit5-plugin.version>
+
+    <!-- GPG -->
+    <gpg.keyname>2AC91B9523D4A0CF</gpg.keyname>
+    <gpg.defaultKeyring>false</gpg.defaultKeyring>
+    <gpg.useagent>true</gpg.useagent>
+    <gpg.lockMode>never</gpg.lockMode>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.playtika.testcontainers</groupId>
+        <artifactId>testcontainers-spring-boot-bom</artifactId>
+        <version>${testcontainers-spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- generic spring-boot support -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+
+    <!-- kubernetes support -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-kubernetes-client-config</artifactId>
+    </dependency>
+
+    <!-- monitoring en metrics -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+<!--
+    disable in combination with elastic dependency (adds field traceId)
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-sleuth</artifactId>
+    </dependency>
+-->
+    <dependency>
+      <groupId>co.elastic.apm</groupId>
+      <artifactId>apm-agent-api</artifactId>
+      <version>${elastic-apm-agent.version}</version>
+    </dependency>
+
+    <!-- REST API error handling -->
+    <dependency>
+      <groupId>org.zalando</groupId>
+      <artifactId>problem-spring-web-starter</artifactId>
+      <version>${problem-spring-web.version}</version>
+    </dependency>
+
+    <!-- connectivity -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>tld.yggdrasill.contingency.guard</groupId>
+      <artifactId>mod1-cgs-api</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <!-- service discovery -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-openfeign-core</artifactId>
+    </dependency>
+
+    <!-- logging to logstash, fluentd -->
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>${logstash-logback-encoder.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>co.elastic.logging</groupId>
+      <artifactId>logback-ecs-encoder</artifactId>
+      <version>${lockback-ecs-encoder.version}</version>
+    </dependency>
+
+    <!-- miscellaneous/build dependencies -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <!-- only needed at compile time -->
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- tests -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <!-- exclude junit 4 -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- junit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- test containers -->
+    <!-- JUnit 5 integration with testcontainer -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.playtika.testcontainers</groupId>
+      <artifactId>embedded-kafka</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- chaos-monkey -->
+    <dependency>
+      <groupId>de.codecentric</groupId>
+      <artifactId>chaos-monkey-spring-boot</artifactId>
+      <version>${chaos-monkey-spring-boot.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- architecture tests -->
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <version>${archunit.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- validation, assertion & tooling -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>${git-commit-id.version}</version>
+        <configuration>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+          <commitIdGenerationMode>full</commitIdGenerationMode>
+          <!--  human-readable part of the version number -->
+          <dateFormat>yyyyMMdd-HHmmss</dateFormat>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>${maven-gpg-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven-failsafe-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!--skip deploy -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!--skip install -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>${maven-install-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${maven-spring-boot-plugin.version}</version>
+        <configuration>
+          <classifier>dist</classifier>
+          <excludes>
+            <exclude>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-configuration-processor</artifactId>
+            </exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${maven-dependency-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>fetch-elastic-apm-agent</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>co.elastic.apm</groupId>
+                  <artifactId>elastic-apm-agent</artifactId>
+                  <version>${elastic-apm-agent.version}</version>
+                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                  <destFileName>elastic-apm-agent.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker-maven-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <verbose>true</verbose>
+          <images>
+            <image>
+              <alias>${project.artifactId}</alias>
+              <name>yggdrasill.tld/${project.artifactId}</name>
+              <build>
+                <contextDir>${project.basedir}/src/main/docker</contextDir>
+                <filter>@</filter>
+                <assembly>
+                  <inline>
+                    <files>
+                      <file>
+                        <source>${project.build.directory}/${project.artifactId}-${project.version}-dist.${project.packaging}</source>
+                        <outputDirectory>app</outputDirectory>
+                        <destName>app.jar</destName>
+                      </file>
+                      <file>
+                        <source>${project.build.directory}/lib/elastic-apm-agent.jar</source>
+                        <outputDirectory>app</outputDirectory>
+                      </file>
+                      <file>
+                        <source>${project.basedir}/src/main/docker/elasticapm.properties</source>
+                        <outputDirectory>app</outputDirectory>
+                        <filtered>true</filtered>
+                      </file>
+                      <file>
+                        <source>${project.basedir}/src/main/docker/entrypoint.sh</source>
+                        <outputDirectory/>
+                        <filtered>true</filtered>
+                      </file>
+                    </files>
+                  </inline>
+                </assembly>
+              </build>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>build-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>push-image</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

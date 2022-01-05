@@ -1,0 +1,9 @@
+- module: mongodb
+  enabled: true
+#  metricsets: [ "dbstats", "status", "collstats", "metrics", "replstatus" ]
+  metricsets: [ "dbstats", "status", "collstats", "metrics" ]
+#  hosts: ["mongodb://myuser:mypass@localhost:40001", "otherhost:40001"]
+  hosts: ["mongodb:27017"]
+  username: mongoadmin
+  password: secret
+  period: 10s

@@ -1,0 +1,3 @@
+spring:
+  config:
+    import: "optional:configserver:http://configuration-service.docker.svc:8888"

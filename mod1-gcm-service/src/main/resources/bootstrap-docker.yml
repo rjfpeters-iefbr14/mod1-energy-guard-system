@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    config:
+      enabled: true
+
+    kubernetes:
+      enabled: false
+
+    vault:
+      fail-fast: true
+      uri: http://vault.docker.svc:8200
+      token: 00000000-0000-0000-0000-000000000000

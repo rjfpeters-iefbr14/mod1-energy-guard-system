@@ -1,0 +1,44 @@
+= Running Elasticsearch
+:toc:
+:icons: font
+:url-quickref:
+
+Single Node installation
+
+https://docs.fluentbit.io/manual/pipeline/outputs/elasticsearch
+
+Kibana update replicas to '0', so yellow to green, because of a single node installation.
+
+
+PUT /_settings
+[source,json]
+{
+    "index" : {
+        "number_of_replicas" : 0
+    }
+}
+
+/reference/7.15/security-minimal-setup.html to enable security.
+
+
+== Components
+
+=== APM
+
+* https://github.com/elastic/apm
+* https://github.com/elastic/apm-agent-java
+
+
+== Logs app fields
+* https://www.elastic.co/guide/en/observability/7.16/logs-app-fields.html
+
+
+== Scripting
+
+=== Painless
+
+
+== Relevant Articles
+https://github.com/xeraa/elastic-docker
+
+* https://www.elastic.co/guide/en/elasticsearch/painless/master/index.html

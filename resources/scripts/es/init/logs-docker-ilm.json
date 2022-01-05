@@ -1,0 +1,38 @@
+{
+  "policy" : {
+    "phases" : {
+      "warm" : {
+        "min_age" : "2d",
+        "actions" : {
+          "shrink" : {
+            "number_of_shards" : 1
+          },
+          "forcemerge" : {
+            "max_num_segments" : 1
+          }
+        }
+      },
+      "hot" : {
+        "min_age" : "0ms",
+        "actions" : {
+          "rollover" : {
+            "max_primary_shard_size" : "50gb",
+            "max_age" : "7d"
+          }
+        }
+      },
+      "delete" : {
+        "min_age" : "7d",
+        "actions" : {
+          "delete" : {
+            "delete_searchable_snapshot" : true
+          }
+        }
+      }
+    },
+    "_meta" : {
+      "managed" : true,
+      "description" : "default policy for the logs index template installed by x-pack"
+    }
+  }
+}

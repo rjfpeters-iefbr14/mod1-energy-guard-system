@@ -1,0 +1,87 @@
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "container": {
+          "type": "object"
+        },
+        "xlog": {
+          "type": "text"
+        },
+        "data.stream": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "constant_keyword",
+              "value": "docker"
+            }
+          }
+        },
+        "level": {
+          "type": "keyword"
+        },
+        "log": {
+          "dynamic": true,
+          "type": "object",
+          "enabled": true,
+          "properties": {
+            "original": {
+              "type": "text"
+            }
+          }
+        },
+        "service": {
+          "dynamic": true,
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "host": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "keyword"
+            },
+            "hostname": {
+              "type": "keyword"
+            },
+            "architecture": {
+              "type": "keyword"
+            },
+            "os": {
+              "type": "object",
+              "properties": {
+                "platform": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "event": {
+          "type": "object",
+          "properties": {
+            "created": {
+              "type": "date"
+            },
+            "kind": {
+              "type": "constant_keyword"
+            },
+            "module": {
+              "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "dataset": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+}

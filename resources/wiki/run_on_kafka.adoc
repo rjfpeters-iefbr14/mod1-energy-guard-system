@@ -1,0 +1,84 @@
+== Run on Kafka
+:toc:
+:icons: font
+:url-quickref:
+
+== Getting started
+
+Create the kafka topics
+
+[source,shell script]
+docker compose up init-kafka
+
+== Handy Commands
+
+Create a topic
+[source,shell script]
+docker exec -ti kafka kafka-topics --bootstrap-server kafka:29092 --create --topic user_names --partitions 1 --replication-factor 1
+
+List the topics
+[source,shell script]
+docker exec -ti kafka kafka-topics --bootstrap-server kafka:29092 --list
+
+Describe a topic
+[source,shell script]
+docker exec -ti kafka kafka-topics --bootstrap-server kafka:29092 --topic user_names --describe
+
+
+Start the consumer
+[source,shell script]
+docker exec -ti kafka kafka-console-consumer --bootstrap-server kafka:29092 --topic user_names --from-beginning
+
+
+Start the producer
+[source,shell script]
+docker exec -ti kafka kafka-console-producer --bootstrap-server kafka:29092 --topic user_names
+
+Start typing messages once the tool is running.
+[source,text]
+>my first message
+>my second message
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* Map properties to env variables:
+https://docs.confluent.io/platform/current/installation/docker/config-reference.html#confluent-ak-configuration
+* All properties:
+https://docs.confluent.io/platform/current/installation/configuration/
+* Kafka Broker properties:
+https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html
+
+
+== Relevant articles
+
+- [Intro to Apache Kafka with Spring](https://www.baeldung.com/spring-kafka)
+- [Testing Kafka and Spring Boot](https://www.baeldung.com/spring-boot-kafka-testing)
+- [Monitor the Consumer Lag in Apache Kafka](https://www.baeldung.com/java-kafka-consumer-lag)
+- [Send Large Messages With Kafka](https://www.baeldung.com/java-kafka-send-large-message)
+- [Configuring Kafka SSL Using Spring Boot](https://www.baeldung.com/spring-boot-kafka-ssl)
+
+- https://github.com/Playtika/testcontainers-spring-boot
+
+https://docs.confluent.io/platform/current/installation/docker/image-reference.html
+
+https://www.onlinetutorialspoint.com/spring-boot/sending-spring-boot-kafka-json-message-to-kafka-topic.html

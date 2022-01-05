@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mod1-gcm-service
+  labels:
+    app.kubernetes.io/name: contingency-guard-system
+spec:
+  entryPoints:
+    - http
+  routes:
+    - kind: Rule
+      match: Host(`cgs.apps.yggdrasill.tld`) && PathPrefix(`/gcm`)
+      middlewares:
+        - name: deo-stripprefix
+      services:
+        - name: mod1-gcm-service
+          port: 8090

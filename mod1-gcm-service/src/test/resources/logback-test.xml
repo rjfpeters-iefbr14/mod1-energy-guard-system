@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+    <resetJUL>true</resetJUL>
+  </contextListener>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <param name="immediateFlush" value="false"/>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="tld.yggdrasill.services.gcm" level="INFO" />
+
+  <root level="WARN">
+    <appender-ref ref="CONSOLE" />
+  </root>
+
+</configuration>
