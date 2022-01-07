@@ -1,5 +1,8 @@
 # Energy Guard Sample Project
 
+[![Electrical Wires Grid Power](resources/banner/electrical-863402_1920.jpg)](https://pixabay.com/photos/electrical-wires-grid-power-863402/)
+
+
 This sample project consists of the following functions/components
 - Spring Boot: RESTfull API's:
     - Global API Exception Handler using ApiExceptionHandler to customize the API response for errors
