@@ -1,0 +1,12 @@
+- module: kafka
+  enabled: true
+  metricsets:
+    - partition
+    - consumergroup
+  hosts: ["kafka:29092"]
+  period: 10s
+
+  client_id: metricbeat
+
+  # List of Topics to query metadata for. If empty, all topics will be queried.
+  #topics: [

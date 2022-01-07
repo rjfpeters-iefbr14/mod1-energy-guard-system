@@ -16,23 +16,35 @@ services:
     environment:
       - JAVA_OPTS=-Dspring.cloud.kubernetes.enabled=false
       - SPRING_PROFILES_ACTIVE=native
+    healthcheck:
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8888/actuator/health
+      start_period: 40s
+      interval: 30s
+      timeout: 3s
+      retries: 30
 
   postgres:
-    image: 'postgres:latest'
+    image: postgres:${POSTGRES_VERSION:-14}
     container_name: postgres
     networks:
       default:
         aliases:
           - postgres.docker.svc
     ports:
-      - ${CONFIG_PORT:-5432}:5432
+      - ${POSTGRES_PORT:-5432}:5432
     environment:
       POSTGRES_USER: username # The PostgreSQL user (useful to connect to the database)
       POSTGRES_PASSWORD: password # The PostgreSQL password (useful to connect to the database)
       POSTGRES_DB: default_database # The PostgreSQL default database (automatically created at first launch)
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "default_database", "-U", "username"]
+      start_period: 40s
+      interval: 30s
+      timeout: 3s
+      retries: 30
 
   mongodb:
-    image: 'library/mongo:4-bionic'
+    image: library/mongo:${MONGO_VERSION:-4-focal}
     container_name: mongodb
     networks:
       default:
@@ -41,12 +53,13 @@ services:
     ports:
       - ${MONGO_PORT:-27017}:27017
     environment:
+      - MONGO_INITDB_DATABASE=gcm-system
       - MONGO_INITDB_ROOT_USERNAME=mongoadmin
       - MONGO_INITDB_ROOT_PASSWORD=secret
     healthcheck:
-      test: ["CMD", "mongo --norc --quiet --host=hostname:27017 <<< 'db.runCommand('ping').ok'"]
-      start_period: 10s
-      interval: 5s
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017 --quiet
+      start_period: 40s
+      interval: 30s
       timeout: 3s
       retries: 30
 
@@ -161,6 +174,10 @@ services:
       discovery.type: "single-node"
       ES_JAVA_OPTS: "-Xms1024m -Xmx1024m"
       cluster.name: "elasticsearch-net-service"
+    labels:
+      co.elastic.metrics/module: "elasticsearch"
+      co.elastic.metrics/hosts: "http://elasticsearch:9200"
+      co.elastic.metrics/metricsets: "node_stats,node"
     healthcheck:
       test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
       retries: 20
@@ -206,9 +223,7 @@ services:
     image: docker.elastic.co/beats/metricbeat:${ELASTIC_VERSION:-7.16.2}
     container_name: metricbeat
     hostname: "pavlopetri"
-    #network_mode: host
     user: root
-    cap_add: ['SYS_PTRACE','DAC_READ_SEARCH']
     volumes:
       #Mount the metricbeat configuration so users can make edits.
       - ./resources/config/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
@@ -226,10 +241,13 @@ services:
       #We mount the host filesystem, so we can report on disk usage with the system module.
       - type: bind
         source: /
-        target: /hostfs:ro
+        target: /hostfs
         read_only: true
       #Allows us to report on docker from the hosts' information.
-      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
     command: metricbeat -e -system.hostfs=/hostfs -strict.perms=false
     depends_on:
       elasticsearch: { condition: service_healthy }

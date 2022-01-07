@@ -1,21 +1,29 @@
 - module: system
+  enabled: true
   metricsets:
-    - core
     - cpu
     - load
-    - diskio
-    - filesystem
-    - fsstat
     - memory
     - network
     - process
+    - process_summary
+    - core
+    - diskio
     - socket
-  enabled: true
   period: 10s
   processes: ['.*']
-  cpu_ticks: true
   process.cgroups.enabled: false
   process.include_top_n:
     enabled: true
     by_cpu: 20
     by_memory: 20
+
+- module: system
+  enabled: true
+  metricsets:
+    - filesystem
+    - fsstat
+  period: 1m
+  processors:
+    - drop_event.when.regexp:
+        system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'

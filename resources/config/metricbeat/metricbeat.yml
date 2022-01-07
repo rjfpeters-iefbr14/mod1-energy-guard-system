@@ -12,6 +12,7 @@ metricbeat.autodiscover:
 
 processors:
   - add_cloud_metadata: ~
+  - add_docker_metadata: ~
 
 monitoring.enabled: true
 

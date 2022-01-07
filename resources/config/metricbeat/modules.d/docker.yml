@@ -1,13 +1,13 @@
 - module: docker
+  enabled: true
   metricsets:
     - "container"
     - "cpu"
     - "diskio"
     - "healthcheck"
     - "info"
-    #- "image"
+    - "image"
     - "memory"
     - "network"
   hosts: ["unix:///var/run/docker.sock"]
   period: 10s
-  enabled: true
