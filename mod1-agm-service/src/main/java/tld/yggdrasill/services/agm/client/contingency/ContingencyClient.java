@@ -4,6 +4,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import tld.yggdrasill.services.agm.client.contingency.config.FeignClientConfiguration;
+import tld.yggdrasill.services.agm.client.contingency.config.exceptions.BadRequestException;
+import tld.yggdrasill.services.agm.client.contingency.config.exceptions.ContingencyNotFoundException;
+import tld.yggdrasill.services.agm.client.contingency.model.ActuatorHealthResponse;
 import tld.yggdrasill.services.agm.client.contingency.model.Contingency;
 
 @FeignClient(name = "contingency-service",
@@ -11,6 +14,9 @@ import tld.yggdrasill.services.agm.client.contingency.model.Contingency;
 	configuration = FeignClientConfiguration.class
 )
 public interface ContingencyClient {
+	@GetMapping("/manage/health")
+	ActuatorHealthResponse health();
+
 	@GetMapping(value = "/{mRID}")
-	Contingency getContingencyById(@PathVariable("mRID") String mRID);
+	Contingency getContingencyById(@PathVariable("mRID") String mRID) throws ContingencyNotFoundException, BadRequestException;
 }

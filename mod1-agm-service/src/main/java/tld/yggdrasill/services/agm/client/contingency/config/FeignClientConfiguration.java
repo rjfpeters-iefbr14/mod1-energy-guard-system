@@ -16,10 +16,10 @@ public class FeignClientConfiguration {
   @Bean
   feign.Logger.Level feignLoggerLevel() { return feign.Logger.Level.FULL;  }
 
-  @Bean
-  public ErrorDecoder errorDecoder() {
-    return new ContingencyErrorDecoder();
-  }
+//  @Bean
+//  public ErrorDecoder errorDecoder() {
+//    return new ContingencyErrorDecoder();
+//  }
 
   @Bean
   public RequestInterceptor requestInterceptor() {
