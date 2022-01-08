@@ -81,9 +81,12 @@ public class LoadSampleDatabase {
         .description("Contingency RS Wieringenwerf").build()));
       log.info("Preloading: " + repository.save(
         buildContingency(UUID.fromString("25115a71-2761-4399-a5c4-600d1bda367f"))
-        .name("RS Zevenhuizen")
-        .description("Contingency RS Zevenhuizen").build()));
-      log.info("Preloading: " + repository.save(buildContingency(UUID.randomUUID()).build()));
+        .name("OS Zevenhuizen")
+        .description("Contingency OS Zevenhuizen").build()));
+      log.info("Preloading: " + repository.save(
+        buildContingency(UUID.fromString("6e125579-3e85-4983-b4e8-e680c95435ad"))
+          .name("OS Hoofddorp")
+          .description("Contingency OS Hoofddorp").build()));
       log.info("Preloading: " + repository.save(buildContingency(UUID.randomUUID()).build()));
       log.info("Preloading: " + repository.save(buildContingency(UUID.randomUUID()).build()));
     };
