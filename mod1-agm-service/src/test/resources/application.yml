@@ -1,3 +1,7 @@
+info:
+  app:
+    name: "test-acg-service"
+---
 spring:
 
   kafka:
@@ -16,9 +20,9 @@ spring:
 #       acks: all
 #       key-serializer: org.apache.kafka.common.serialization.StringSerializer
 #       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-#     consumer:
-#       auto-offset-reset: earliest
-#       group-id: yggdrasill-group
+    consumer:
+     group-id: agm-group
+     auto-offset-reset: earliest
 #       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 #       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
@@ -34,6 +38,9 @@ app:
       topic: embedded-test-topic
     consumer:
       topic: embedded-test-topic
+  client:
+    contingency-service:
+      url: "http://localhost:8094"
 
 camunda:
   bpm:
