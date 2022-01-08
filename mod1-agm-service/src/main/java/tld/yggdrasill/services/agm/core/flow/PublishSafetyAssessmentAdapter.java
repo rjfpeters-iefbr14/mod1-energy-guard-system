@@ -21,6 +21,8 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @Component
 public class PublishSafetyAssessmentAdapter implements JavaDelegate {
 
+  public static final String ERROR_SAFETY_ASSESSMENT = "Error_SafetyAssessment";
+
   private final ContingencyClient contingencyClient;
 
   private final GridServiceProducerService kafkaProducer;
@@ -38,9 +40,10 @@ public class PublishSafetyAssessmentAdapter implements JavaDelegate {
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     String processId = execution.getProcessInstanceId();
+    String contingencyId = (String) execution.getVariable("contingencyId");
+    String contingencyName = (String) execution.getVariable("contingencyName");
+
     try {
-      String contingencyId = (String) execution.getVariable("contingencyId");
-      String contingencyName = (String) execution.getVariable("contingencyName");
       log.info("ProcessInstance: {}, {}", kv("processId", processId), kv("contingencyId", contingencyId));
 
       Contingency contingency = contingencyClient.getContingencyById(contingencyId);
@@ -55,8 +58,9 @@ public class PublishSafetyAssessmentAdapter implements JavaDelegate {
         .buildEvent(producerId, contingencyId, contingencyName, businessKey);
       kafkaProducer.send(event);
     } catch (Exception e) {
-      log.error(e.getMessage());
-      throw new BpmnError("500","Error starting safety-assessment",e);
+      log.error("ERROR_SAFETY_ASSESSMENT {} {}",kv("contingencyName", contingencyName),e.getMessage());
+      execution.setVariable("errorCode {}",kv("contingencyId", contingencyId));
+      throw new BpmnError(ERROR_SAFETY_ASSESSMENT);
     }
   }
 }
