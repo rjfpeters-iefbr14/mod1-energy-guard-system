@@ -1,20 +1,28 @@
 #!/bin/bash
 
 # Wait for Elasticsearch to start up before doing anything.
-until curl -s http://elasticsearch:9200/_cat/health -o /dev/null; do
+until curl -s http://localhost:9200/_cat/health -o /dev/null; do
     echo Waiting for Elasticsearch...
     sleep 1
 done
 
 # Wait for Kibana to start up before doing anything.
-until curl -s http://kibana:5601/ -o /dev/null; do
+until curl -s http://localhost:5601/ -o /dev/null; do
     echo Waiting for Kibana...
     sleep 1
 done
 
+# see index management
+curl -XPUT "http://localhost:9200/_settings" -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'
+{
+  "index" : {
+    "number_of_replicas" : 0
+  }
+}'
+echo "One single node, so prevent healt on all indexes yellow."
+
 # shellcheck disable=SC2046
-# not always stable, then just copy/paste
-jq -Rn --slurpfile j ./init/json-extractor-script.json '$j[] | .processors[0].script.source = input' <<< $(tr -d '\n' < ./init/json-extractor.script) |
+jq --raw-input -s -nc --slurpfile j ./init/json-extractor-script.json '$j[] | .processors[0].script.source = (input | tostring)' <<< $(cat ./init/json-extractor.script) |
 curl -XPUT "http://localhost:9200/_ingest/pipeline/json_extractor" -H 'Content-Type: application/json' -d @-
 echo "Loading pipeline ingest chain..."
 
@@ -47,3 +55,7 @@ curl -X POST "localhost:5601/api/index_patterns/default" -H 'kbn-xsrf: true' -H 
     "index_pattern_id": "logstash"
 }
 '
+
+# Import Canvas
+curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" \
+ --form file=@./dashboard/camvas-workpad-observability-dashboard.ndjson
