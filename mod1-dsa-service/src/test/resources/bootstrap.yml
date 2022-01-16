@@ -12,6 +12,6 @@ spring:
 embedded:
   kafka:
     enabled: true
-    dockerImageVersion: '7.0.0'
-    topicsToCreate: nonSecureTopic,secureTopic,embedded-test-topic
-    secureTopics: secureTopic
+#    dockerImageVersion: '7.0.0'
+#    topicsToCreate: nonSecureTopic,secureTopic,embedded-test-topic
+#    secureTopics: secureTopic

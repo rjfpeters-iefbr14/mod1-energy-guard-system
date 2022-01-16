@@ -1,6 +1,5 @@
 package tld.yggdrasill.services.dsa.client.contingency.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +12,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Contingency {
+public class ContingencyResponse {
 
   @JsonProperty(value = "mRID", index = 0)
   private String mRID;

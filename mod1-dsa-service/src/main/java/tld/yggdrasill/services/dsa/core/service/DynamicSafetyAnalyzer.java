@@ -9,9 +9,9 @@ import tld.yggdrasill.services.cgs.model.End;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 import tld.yggdrasill.services.cgs.model.MetaInf;
 import tld.yggdrasill.services.cgs.model.Payload;
-import tld.yggdrasill.services.dsa.client.GridServiceProducerService;
+import tld.yggdrasill.services.dsa.client.GridServiceProducerClient;
 import tld.yggdrasill.services.dsa.client.contingency.ContingencyClient;
-import tld.yggdrasill.services.dsa.client.contingency.model.Contingency;
+import tld.yggdrasill.services.dsa.client.contingency.model.ContingencyResponse;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,7 +25,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @Service
 public class DynamicSafetyAnalyzer {
 
-  private final GridServiceProducerService kafkaProducer;
+  private final GridServiceProducerClient kafkaProducer;
 
   private final ContingencyClient contingencyClient;
 
@@ -41,7 +41,7 @@ public class DynamicSafetyAnalyzer {
     return "no-congestion-detected";
   }
 
-  public DynamicSafetyAnalyzer(GridServiceProducerService kafkaProducer,
+  public DynamicSafetyAnalyzer(GridServiceProducerClient kafkaProducer,
     ContingencyClient contingencyClient) {
     this.kafkaProducer = kafkaProducer;
     this.contingencyClient = contingencyClient;
@@ -51,7 +51,7 @@ public class DynamicSafetyAnalyzer {
     LocalDateTime startAtTime = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
 
     String mRID = (String) event.getPayload().getContingency().getmRID();
-    Contingency contingency = contingencyClient.getContingencyById(mRID);
+    ContingencyResponse contingency = contingencyClient.getContingencyById(mRID);
     log.info("Contingency: {} -> {}", kv("contingencyId",mRID),contingency.toString());
 
     //-- sample analyzing this event

@@ -1,25 +1,12 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   kafka:
-    bootstrap-servers: ${embedded.kafka.brokerList}
-    producer:
-      bootstrap.servers: ${embedded.kafka.brokerList}
-#     properties:
-#       ssl.endpoint.identification.algorithm:
-#       security.protocol: SASL_PLAINTEXT
-#       sasl.mechanism: PLAIN
-# #      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required \
-# #       username="${embedded.kafka.saslPlaintext.user}" \
-# #       password="${embedded.kafka.saslPlaintext.password}";
-#     producer:
-#       retries: 0
-#       acks: all
-#       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-#     consumer:
-#       auto-offset-reset: earliest
-#       group-id: yggdrasill-group
-#       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    bootstrap-servers: "${embedded.kafka.brokerList}"
+
+    consumer:
+      group-id: dsa-group
 
 app:
   kafka:
@@ -28,12 +15,9 @@ app:
     consumer:
       topic: embedded-test-topic
 
-# monitor:
-#   kafka:
-#     bootstrap:
-#       config: "PLAINTEXT://localhost:9085"
-#     consumer:
-#       group-id: "group-yggdrasill"
+  client:
+    contingency-service:
+      url: "http://localhost:8094"
 
 logging:
   level:

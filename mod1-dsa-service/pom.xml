@@ -33,8 +33,8 @@
 
     <!-- tests -->
     <junit-jupiter.version>5.8.2</junit-jupiter.version>
-    <testcontainers-spring-boot.version>2.0.15</testcontainers-spring-boot.version>
-    <testcontainers.version>1.15.2</testcontainers.version>
+    <testcontainers-spring-boot.version>2.0.19</testcontainers-spring-boot.version>
+<!--    <testcontainers.version>1.15.2</testcontainers.version>-->
 
     <chaos-monkey-spring-boot.version>2.5.4</chaos-monkey-spring-boot.version>
     <archunit.version>0.22.0</archunit.version>
@@ -48,7 +48,7 @@
     <pitest-junit5-plugin.version>0.12</pitest-junit5-plugin.version>
 
     <!-- GPG -->
-    <gpg.keyname>2AC91B9523D4A0CF</gpg.keyname>
+<!--    <gpg.keyname>2AC91B9523D4A0CF</gpg.keyname>-->
     <gpg.defaultKeyring>false</gpg.defaultKeyring>
     <gpg.useagent>true</gpg.useagent>
     <gpg.lockMode>never</gpg.lockMode>
@@ -72,6 +72,7 @@
         <scope>import</scope>
       </dependency>
 
+<!--
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
@@ -79,6 +80,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+-->
 
     </dependencies>
   </dependencyManagement>
@@ -211,6 +213,7 @@
 
     <!-- test containers -->
     <!-- JUnit 5 integration with testcontainer -->
+<!--
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -221,6 +224,7 @@
       <artifactId>kafka</artifactId>
       <scope>test</scope>
     </dependency>
+-->
     <dependency>
       <groupId>com.playtika.testcontainers</groupId>
       <artifactId>embedded-kafka</artifactId>

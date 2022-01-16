@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tld.yggdrasill.services.dsa.client.GridServiceProducerService;
+import tld.yggdrasill.services.dsa.client.GridServiceProducerClient;
 import tld.yggdrasill.services.dsa.client.contingency.ContingencyClient;
-import tld.yggdrasill.services.dsa.client.contingency.model.Contingency;
+import tld.yggdrasill.services.dsa.client.contingency.model.ContingencyResponse;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -20,11 +20,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 public class DSAController {
 
-  private final GridServiceProducerService kafkaProducer;
+  private final GridServiceProducerClient kafkaProducer;
 
   private final ContingencyClient contingencyClient;
 
-  public DSAController(GridServiceProducerService kafkaProducer,
+  public DSAController(GridServiceProducerClient kafkaProducer,
     ContingencyClient contingencyClient) {
     this.kafkaProducer = kafkaProducer;
     this.contingencyClient = contingencyClient;
@@ -44,12 +44,11 @@ public class DSAController {
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
-
   @GetMapping(value = "/contingencies/{mRID}", produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<?> getContingency(@PathVariable String mRID) {
     log.info("Contingency: {}", kv("contingencyId",mRID));
 
-    Contingency contingency = contingencyClient.getContingencyById(mRID);
+    ContingencyResponse contingency = contingencyClient.getContingencyById(mRID);
     log.info("Contingency: {} -> {}", kv("contingencyId",mRID),contingency.toString());
 
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
