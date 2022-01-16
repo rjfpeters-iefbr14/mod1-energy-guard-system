@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ContingenciesResponse {
-  private List<Contingency> Contingencies;
+  private List<ContingencyResponse> Contingencies;
 }

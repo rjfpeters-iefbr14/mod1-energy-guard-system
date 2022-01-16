@@ -68,4 +68,8 @@ public class ContingencyResponse {
   public CimType getType() {
     return type;
   }
+
+  private String camundaDeploymentId;
+
+  private String camundaProcessDefinitionId;
 }

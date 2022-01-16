@@ -9,27 +9,25 @@ spring:
     kubernetes:
       enabled: false
 
-    vault:
-      uri: 'http://${embedded.vault.host}:${embedded.vault.port}'
-      token: '${embedded.vault.token}'
-      kv:
-        enabled: true
+#-- disable vault to store secrets, key-rotation
+#    vault:
+#      uri: 'http://${embedded.vault.host}:${embedded.vault.port}'
+#      token: '${embedded.vault.token}'
+#      kv:
+#        enabled: true
 
 embedded:
   mongodb:
     enabled: true
     dockerImage: 'mongo:4-bionic'
 
-  vault:
-    enabled: true
-    dockerImage: 'vault:1.4.3'
-
-  rabbitmq:
-    enabled: true
-    dockerImage: 'rabbitmq:3-management'
-
-  keycloak:
-    enabled: true
-    dockerImage: 'jboss/keycloak:11.0.0'
-    wait-timeout-in-seconds: 60
-    import-file: 'realm-yggdrasill.json'
+#-- disable oauth2 security
+#  vault:
+#    enabled: false
+#    dockerImage: 'vault:1.4.3'
+#
+#  keycloak:
+#    enabled: false
+#    dockerImage: 'jboss/keycloak:11.0.0'
+#    wait-timeout-in-seconds: 60
+#    import-file: 'realm-yggdrasill.json'

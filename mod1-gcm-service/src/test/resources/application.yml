@@ -13,21 +13,14 @@ spring:
       host: ${embedded.mongodb.host}
 
 # -- resource server configuration properties
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${embedded.keycloak.auth-server-url}/realms/yggdrasill
-          jwk-set-uri: ${embedded.keycloak.auth-server-url}/realms/yggdrasill/protocol/openid-connect/certs
+#  disable oauth2 security
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: ${embedded.keycloak.auth-server-url}/realms/yggdrasill
+#          jwk-set-uri: ${embedded.keycloak.auth-server-url}/realms/yggdrasill/protocol/openid-connect/certs
 
-  zipkin:
-    enabled: false
-
-  rabbitmq:
-    host: ${embedded.rabbitmq.host}
-    port: ${embedded.rabbitmq.port}
-    user: ${embedded.rabbitmq.user}
-    password: ${embedded.rabbitmq.password}
 
 logging:
   level:

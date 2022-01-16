@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tld.yggdrasill.services.gcm.api.common.exceptions.ContingencyNotFound;
+import tld.yggdrasill.services.gcm.api.common.validator.annotation.isValidUUID;
 import tld.yggdrasill.services.gcm.api.model.ContingenciesResponse;
 import tld.yggdrasill.services.gcm.api.model.ContingencyEquipmentsResponse;
 import tld.yggdrasill.services.gcm.api.model.ContingencyRequest;
@@ -28,7 +31,6 @@ import tld.yggdrasill.services.gcm.api.model.TopologicalIslandResponse;
 import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.core.model.ContingencyEquipment;
 import tld.yggdrasill.services.gcm.core.model.TopologicalIsland;
-import tld.yggdrasill.services.gcm.core.repository.ContingencyRepository;
 import tld.yggdrasill.services.gcm.core.service.ContingencyService;
 import tld.yggdrasill.services.gcm.core.utils.BasicPredicateBuilder;
 
@@ -45,13 +47,21 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@Validated
 @Slf4j
 public class ContingencyController {
-  private final String DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE = "application/vnd.contingency.v1+json";
+  public static MediaType DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE = MediaType.valueOf("application/vnd.contingency.v1+json");
 
   private final ContingencyService contingencyService;
 
   private final ModelMapper modelMapper;
+
+  <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
+    return source
+      .stream()
+      .map(element -> modelMapper.map(element, targetClass))
+      .collect(Collectors.toList());
+  }
 
   public ContingencyController(ContingencyService contingencyService) {
     this.contingencyService = contingencyService;
@@ -64,7 +74,8 @@ public class ContingencyController {
     modelMapper.typeMap(Contingency.class, ContingencyResponse.class);
   }
 
-  @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE, produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
+
+  @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE)
   public ResponseEntity<ContingencyResponse> create(@RequestBody @Valid ContingencyRequest request) {
     log.info("Contingency request: {}", kv("contingencyName", request.getName()));
 
@@ -86,10 +97,10 @@ public class ContingencyController {
     }
 
     ContingencyResponse response = modelMapper.map(contingency, ContingencyResponse.class);
-    return ResponseEntity.created(location).body(response);
+    return ResponseEntity.created(location).contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
   }
 
-  @GetMapping(value = "/", produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
+  @GetMapping(value = "/")
   public ResponseEntity<ContingenciesResponse> search(@RequestHeader MultiValueMap<String, String> headers,
     @RequestParam(value = "search", required = false) String search) {
     headers.forEach((key, value) -> {
@@ -112,14 +123,15 @@ public class ContingencyController {
     if (contingencies.isEmpty())
       throw new ContingencyNotFound();
 
-    return ResponseEntity.ok().body(new ContingenciesResponse(contingencies));
+    List<ContingencyResponse> contingencyResponses = mapList(contingencies,ContingencyResponse.class);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(new ContingenciesResponse(contingencyResponses));
   }
 
 
   //TODO:- add caching information
-  @GetMapping(value = "/{id}", produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
+  @GetMapping(value = "/{id}")
   public ResponseEntity<ContingencyResponse> getById(@RequestHeader MultiValueMap<String, String> headers,
-    @PathVariable("id") String id) {
+    @PathVariable("id") @isValidUUID String id) {
     headers.forEach((key, value) -> {
       log.debug(String.format(
         "Header '%s' = %s", key, value.stream().collect(Collectors.joining("|"))));
@@ -130,12 +142,12 @@ public class ContingencyController {
       .orElseThrow(() -> new ContingencyNotFound(id));
 
     ContingencyResponse response = modelMapper.map(contingency, ContingencyResponse.class);
-    return ResponseEntity.ok().body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
   }
 
   //TODO:- add caching information
-  @GetMapping(value = "/{id}/contingency-equipments", produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
-  public ResponseEntity<ContingencyEquipmentsResponse> getEquipmentsById(@PathVariable("id") String id) {
+  @GetMapping(value = "/{id}/contingency-equipments")
+  public ResponseEntity<ContingencyEquipmentsResponse> getEquipmentsById(@PathVariable("id") @isValidUUID String id) {
     log.info("Contingency findById: {}", kv("mRID", id));
     Contingency contingency = contingencyService.findById(UUID.fromString(id))
       .orElseThrow(() -> new ContingencyNotFound(id));
@@ -143,12 +155,13 @@ public class ContingencyController {
     List<ContingencyEquipment> equipments = contingency.getContingencyEquipments();
 
     ContingencyEquipmentsResponse response = new ContingencyEquipmentsResponse(equipments);
-    return ResponseEntity.ok().body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
   }
 
-  @GetMapping(value = "/{id}/topological-island", produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
-  public ResponseEntity<TopologicalIslandResponse> getTopologicalIslandById(@PathVariable("id") String id) {
+  @GetMapping(value = "/{id}/topological-island")
+  public ResponseEntity<TopologicalIslandResponse> getTopologicalIslandById(@PathVariable("id") @isValidUUID String id) {
     log.info("Contingency findById: {}", kv("mRID", id));
+
     Contingency contingency = contingencyService.findById(UUID.fromString(id))
       .orElseThrow(() -> new ContingencyNotFound(id));
 
@@ -156,11 +169,11 @@ public class ContingencyController {
 
     TopologicalIslandResponse response = new TopologicalIslandResponse();
     response.setTerminals(island.getTerminals());
-    return ResponseEntity.ok().body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
   }
 
-  @PutMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE, produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
-  public ResponseEntity<ContingencyResponse> update(@PathVariable("id") String id,
+  @PutMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
+  public ResponseEntity<ContingencyResponse> update(@PathVariable("id") @isValidUUID String id,
     @RequestBody @Valid ContingencyRequest request) {
     log.info("Contingency findById: {}", kv("mRID", id));
     Contingency contingency = contingencyService.findById(UUID.fromString(id))
@@ -171,12 +184,12 @@ public class ContingencyController {
     modelMapper.typeMap(Contingency.class, ContingencyResponse.class);
     ContingencyResponse response = modelMapper.map(contingency, ContingencyResponse.class);
 
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
   }
 
   @DeleteMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable("id") String id) {
+  public void delete(@PathVariable("id") @isValidUUID String id) {
     log.info("Contingency findById: {}", kv("mRID", id));
     Contingency contingency = contingencyService.findById(UUID.fromString(id))
       .orElseThrow(() -> new ContingencyNotFound(id));

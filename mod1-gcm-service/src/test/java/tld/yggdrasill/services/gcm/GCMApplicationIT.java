@@ -14,11 +14,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
   classes = GCMApplicationIT.TestConfiguration.class,
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
   properties = {
-    "embedded.mongo.database=deo-system",
-
-    "embedded.vault.path=secret/deo-employee-service",
-    "embedded.vault.secrets.spring.data.mongodb.username=${embedded.mongodb.username}",
-    "embedded.vault.secrets.spring.data.mongodb.password=${embedded.mongodb.password}"
+    "embedded.mongo.database=gcs-system",
   })
 @AutoConfigureMockMvc
 public class GCMApplicationIT {

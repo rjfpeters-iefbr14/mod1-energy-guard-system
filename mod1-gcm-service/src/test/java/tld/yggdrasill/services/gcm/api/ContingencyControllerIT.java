@@ -1,8 +1,14 @@
 package tld.yggdrasill.services.gcm.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,9 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectWriter;
 import tld.yggdrasill.services.gcm.api.model.ContingencyRequest;
+import tld.yggdrasill.services.gcm.api.model.ContingencyResponse;
 import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.core.model.ContingencyStatus;
 import tld.yggdrasill.services.gcm.core.repository.ContingencyRepository;
@@ -56,6 +61,7 @@ public class ContingencyControllerIT {
         .accept(MediaType.APPLICATION_JSON))
       .andDo(print())
       .andExpect(status().isOk())
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies").exists())
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies[*].mRID").isNotEmpty());
   }
@@ -69,8 +75,8 @@ public class ContingencyControllerIT {
         .accept(MediaType.APPLICATION_JSON))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies").exists())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies[*].mRID").isNotEmpty());
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.mRID").isNotEmpty());
   }
 
   @Test
@@ -85,7 +91,7 @@ public class ContingencyControllerIT {
 
   @Test
   void should_successfully_delete_a_contingency() throws Exception {
-    Contingency contingency = repository.save(ContingencyHelper.getContingency());
+    Contingency contingency = repository.save(ContingencyHelper.getOneContingency());
 
     this.mvc.perform(MockMvcRequestBuilders
         .delete("/" + contingency.getMRID()) //
@@ -95,12 +101,18 @@ public class ContingencyControllerIT {
   }
 
   @Test
-  void should_successfully_add_an_employee_when_valid_request() throws Exception {
-    ContingencyRequest contingency = new ContingencyRequest();
-    contingency.setName("next sample");
-    contingency.setStatus(new ContingencyStatus());
+  void should_successfully_add_a_contingency_when_valid_request() throws Exception {
+    ModelMapper modelMapper = new ModelMapper();
+    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+    modelMapper.typeMap(ContingencyRequest.class, Contingency.class)
+      .addMappings(mapper -> mapper.skip(Contingency::setMRID));
 
-    ObjectMapper mapper = new ObjectMapper();
+    Contingency contingency = ContingencyHelper.getOneContingency();
+    ContingencyRequest request = modelMapper.map(contingency, ContingencyRequest.class);
+
+    ObjectMapper mapper = JsonMapper.builder()
+      .addModule(new JavaTimeModule())
+      .build();
     ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
 
     this.mvc.perform(MockMvcRequestBuilders
@@ -110,14 +122,13 @@ public class ContingencyControllerIT {
         .content(ow.writeValueAsString(contingency)))
       .andDo(print()) //
       .andExpect(status().isCreated())
-      .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.contingency").exists());
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.mRID").exists());
   }
 
   @Test
-  void should_fail_to_add_an_employee_when_invalid_request() throws Exception {
+  void should_fail_to_add_a_contingency_when_invalid_request() throws Exception {
     ContingencyRequest contingency = new ContingencyRequest();
-    contingency.setName("next sample");
     contingency.setStatus(new ContingencyStatus());
 
     ObjectMapper mapper = new ObjectMapper();
@@ -135,16 +146,17 @@ public class ContingencyControllerIT {
 
   @Test
   void should_successfully_search_for_contingencies() throws Exception {
-    ContingencyRequest contingency = new ContingencyRequest();
-    contingency.setName("next sample");
-    contingency.setStatus(new ContingencyStatus());
+    Contingency contingency = ContingencyHelper.getOneContingency();
+    contingency.setName("ST-sample");
+    repository.save(contingency);
 
     this.mvc.perform(MockMvcRequestBuilders
         .get("/") //
-        .param("search", "name:'RS Neerijnen'")
+        .param("search", "name:ST-sample")
         .accept(MediaType.APPLICATION_JSON))
       .andDo(print())
       .andExpect(status().isOk())
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies").exists())
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies[*].mRID").isNotEmpty());
   }
