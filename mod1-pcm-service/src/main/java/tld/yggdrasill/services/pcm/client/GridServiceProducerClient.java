@@ -12,18 +12,18 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Slf4j
 @Component
-public class GridServiceProducerService {
+public class GridServiceProducerClient {
 
   private final ObjectMapper objectMapper;
 
-  private final KafkaTemplate<Integer, String> kafkaTemplate;
+  private final KafkaTemplate<String, String> kafkaTemplate;
 
   @Value("${app.kafka.producer.topic}")
   String topic;
 
   @Autowired
-  public GridServiceProducerService(ObjectMapper objectMapper,
-    KafkaTemplate<Integer, String> kafkaTemplate) {
+  public GridServiceProducerClient(ObjectMapper objectMapper,
+    KafkaTemplate<String, String> kafkaTemplate) {
     this.objectMapper = objectMapper;
     this.kafkaTemplate = kafkaTemplate;
   }

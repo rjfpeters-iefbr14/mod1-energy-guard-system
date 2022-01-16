@@ -22,7 +22,6 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
   private final String bootstrapServers;
-
   private final KafkaProperties kafkaProperties;
 
   @Autowired
@@ -33,16 +32,19 @@ public class KafkaConsumerConfig {
   }
 
   @Bean
-  public ConsumerFactory<String, String> consumerFactory() {
-    Map<String, Object> props = new HashMap<>(
+  public Map<String, Object> consumerConfigs() {
+    Map<String, Object> config = new HashMap<>(
       kafkaProperties.buildConsumerProperties()
     );
-    //    Map<String, Object> props = new HashMap<>();
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-    //    props.put(ConsumerConfig.GROUP_ID_CONFIG, "json");
-    return new DefaultKafkaConsumerFactory<>(props);
+    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    return config;
+  }
+
+  @Bean
+  public ConsumerFactory<String, String> consumerFactory() {
+    return new DefaultKafkaConsumerFactory<>(consumerConfigs());
   }
 
   @Bean

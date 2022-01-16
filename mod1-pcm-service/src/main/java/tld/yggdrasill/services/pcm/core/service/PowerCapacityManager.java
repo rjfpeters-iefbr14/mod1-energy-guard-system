@@ -8,9 +8,9 @@ import tld.yggdrasill.services.cgs.model.End;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 import tld.yggdrasill.services.cgs.model.MetaInf;
 import tld.yggdrasill.services.cgs.model.Payload;
-import tld.yggdrasill.services.pcm.client.GridServiceProducerService;
+import tld.yggdrasill.services.pcm.client.GridServiceProducerClient;
 import tld.yggdrasill.services.pcm.client.contingency.ContingencyClient;
-import tld.yggdrasill.services.pcm.client.contingency.model.Contingency;
+import tld.yggdrasill.services.pcm.client.contingency.model.ContingencyResponse;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -26,13 +26,13 @@ public class PowerCapacityManager {
 
   private final ContingencyClient contingencyClient;
 
-  private final GridServiceProducerService kafkaProducer;
+  private final GridServiceProducerClient kafkaProducer;
 
   @Value("${info.app.name:undefined}")
   String producerId;
 
   public PowerCapacityManager(ContingencyClient contingencyClient,
-    GridServiceProducerService kafkaProducer) {
+    GridServiceProducerClient kafkaProducer) {
     this.contingencyClient = contingencyClient;
     this.kafkaProducer = kafkaProducer;
   }
@@ -41,7 +41,7 @@ public class PowerCapacityManager {
     LocalDateTime startAtTime = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
 
     String mRID = (String) event.getPayload().getContingency().getmRID();
-    Contingency contingency = contingencyClient.getContingencyById(mRID);
+    ContingencyResponse contingency = contingencyClient.getContingencyById(mRID);
     log.info("Contingency: {} -> {}", kv("contingencyId",mRID),contingency.toString());
 
     //-- sample processing this event

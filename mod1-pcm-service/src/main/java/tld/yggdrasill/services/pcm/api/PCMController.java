@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tld.yggdrasill.services.pcm.client.GridServiceProducerService;
+import tld.yggdrasill.services.pcm.client.GridServiceProducerClient;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -16,9 +16,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 public class PCMController {
 
-  private final GridServiceProducerService kafkaProducer;
+  private final GridServiceProducerClient kafkaProducer;
 
-  public PCMController(GridServiceProducerService kafkaProducer) {
+  public PCMController(GridServiceProducerClient kafkaProducer) {
     this.kafkaProducer = kafkaProducer;
   }
 
