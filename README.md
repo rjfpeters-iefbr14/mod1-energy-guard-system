@@ -1,4 +1,4 @@
-# Energy Guard Sample Project
+# Energy Contingency Management System Sample Project
 
 [![Electrical Wires Grid Power](resources/banner/electrical-863402_1920.jpg)](https://pixabay.com/photos/electrical-wires-grid-power-863402/)
 
@@ -36,8 +36,9 @@ This sample project consists of the following functions/components
   - apm-server
   - kibana
 - TestContainers
-  - kafka 
+  - kafka
   - mongodb
+  - postgresql
 
 
 Prepared not yet implemented

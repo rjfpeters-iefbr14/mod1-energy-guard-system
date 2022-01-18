@@ -1,14 +1,14 @@
 services:
-  configuration:
+  cfg-service:
     image: 'hyness/spring-cloud-config-server:3.0.5-jdk11'
-    container_name: configuration-service
+    container_name: cfg-service
 #    restart: unless-stopped
-    mem_limit: 1g
-    hostname: configuration-service
+    mem_limit: 512m
+    hostname: cfg-service
     networks:
       default:
         aliases:
-          - configuration-service.docker.svc
+          - cfg-service.docker.svc
     ports:
       - ${CONFIG_PORT:-8888}:8888
     volumes:
@@ -17,7 +17,8 @@ services:
       - JAVA_OPTS=-Dspring.cloud.kubernetes.enabled=false
       - SPRING_PROFILES_ACTIVE=native
     healthcheck:
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8888/actuator/health
+      # busybox doesn't contain the curl-command
+      test: wget --no-verbose --spider http://localhost:8888/actuator/health || exit 1
       start_period: 40s
       interval: 30s
       timeout: 3s
@@ -187,8 +188,6 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-7.16.2}
     container_name: kibana
-    depends_on:
-      elasticsearch: { condition: service_healthy }
     ports:
       - 5601:5601
     environment:
@@ -198,6 +197,8 @@ services:
       SERVER_MAXPAYLOADBYTES: 4194304
       KIBANA_AUTOCOMPLETETIMEOUT: 3000
       KIBANA_AUTOCOMPLETETERMINATEAFTER: 2500000
+    depends_on:
+      elasticsearch: { condition: service_healthy }
     healthcheck:
       test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
       retries: 20
@@ -227,7 +228,7 @@ services:
     volumes:
       #Mount the metricbeat configuration so users can make edits.
       - ./resources/config/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
-      #Mount the modules.d directory into the container. This allows user to potentially make changes to the modules and they will be dynamically loaded.
+      #Mount the modules.d directory into the container. This allows user to potentially make changes to the modules, and they will be dynamically loaded.
       - ./resources/config/metricbeat/modules.d/:/usr/share/metricbeat/modules.d/
       #The commented sections below enable Metricbeat to monitor the Docker host rather than the Metricbeat container. These are used by the system module.
       - type: bind
@@ -268,18 +269,21 @@ services:
       interval: 10s
       retries: 12
 
-  #fluentbit container
-  fluentbit:
-    image: fluent/fluent-bit
-    container_name: "fluent-bit"
-    ports:
-      - "24224:24224"
-      - "24224:24224/udp"
+  # filebeat
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION:-7.16.2}
+    container_name: filebeat
+    user: root #To read the docker socket
     volumes:
-      - type: bind
-        source: ./resources/config/fluent-bit/fluent-bit.conf
-        target: /fluent-bit/etc/fluent-bit.conf
-        read_only: true
+      # mount the filebeat configuration so users can make edits.
+      - ./resources/config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      #Mount the modules.d directory into the container. This allows user to potentially make changes to the modules, and they will be dynamically loaded.
+      - ./resources/config/filebeat/modules.d/:/usr/share/filebeat/modules.d/
+      # needed to access additional information about containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # needed to access all docker logs
+      - /var/lib/docker/containers:/var/lib/docker/containers
+    command: filebeat -e -strict.perms=false
     depends_on:
       elasticsearch: { condition: service_healthy }
 
@@ -287,6 +291,9 @@ services:
   dsa-service:
     image: yggdrasill.tld/mod1-dsa-service
     container_name: dsa-service
+    hostname: dsa-service-host
+    labels:
+      filebeat_enable: true
     mem_limit: 1024m
     networks:
       default:
@@ -298,17 +305,18 @@ services:
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=docker
     depends_on:
-      - configuration
+      - cfg-service
       - kafka
-    logging:
-      driver: fluentd
-      options:
-        tag: dsa-service
+      - filebeat
+      - apm-server
 
   #power-capacity-manager container
   pcm-service:
     image: yggdrasill.tld/mod1-pcm-service
     container_name: pcm-service
+    hostname: pcm-service-host
+    labels:
+      filebeat_enable: true
     mem_limit: 1024m
     networks:
       default:
@@ -320,18 +328,17 @@ services:
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=docker
     depends_on:
-      - configuration
+      - cfg-service
       - kafka
-      - fluentbit
-    logging:
-      driver: fluentd
-      options:
-        tag: pcm-service
+      - filebeat
+      - apm-server
 
   agm-service:
     image: yggdrasill.tld/mod1-agm-service
     container_name: agm-service
-    hostname: agm-host
+    hostname: agm-service-host
+    labels:
+      filebeat_enable: true
     mem_limit: 1536m
     networks:
       default:
@@ -343,16 +350,17 @@ services:
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=docker
     depends_on:
-      - configuration
+      - cfg-service
       - kafka
-    logging:
-      driver: fluentd
-      options:
-        tag: agm-service
+      - filebeat
+      - apm-server
 
   gcm-service:
     image: yggdrasill.tld/mod1-gcm-service
     container_name: gcm-service
+    hostname: gcm-service-host
+    labels:
+      filebeat_enable: true
     mem_limit: 1024m
     networks:
       default:
@@ -364,12 +372,10 @@ services:
     environment:
       - JAVA_OPTS=-Dspring.profiles.active=docker
     depends_on:
-      - configuration
+      - cfg-service
       - kafka
-      - fluentbit
-    logging:
-      driver: fluentd
-      options:
-        tag: gcm-service
+      - filebeat
+      - apm-server
+      - mongodb
 
 networks: {stack: {}}

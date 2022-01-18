@@ -12,7 +12,8 @@
     - socket
   period: 10s
   processes: ['.*']
-  process.cgroups.enabled: false
+  cgroups: true
+  process.cgroups.enabled: true
   process.include_top_n:
     enabled: true
     by_cpu: 20

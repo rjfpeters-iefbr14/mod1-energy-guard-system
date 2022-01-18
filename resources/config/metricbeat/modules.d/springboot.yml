@@ -1,0 +1,14 @@
+- module: http
+  enabled: true
+  metricsets:
+    - json
+  period: 30s
+  hosts: [
+    "http://dsa-service:9090/manage/info",
+    "http://pcm-service:9090/manage/info",
+    "http://agm-service:9090/manage/info",
+    "http://gcm-service:9090/manage/info"
+  ]
+  namespace: "cis"
+  fields:
+    metric_id: cis-infohub

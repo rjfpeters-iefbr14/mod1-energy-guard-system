@@ -1,0 +1,72 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.period: 10s
+    # Reload module configs as they change:
+    reload.enabled: true
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            has_fields: ['docker.container.labels.filebeat_enable']
+          config:
+            - type: filestream
+              paths:
+                - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+              close_inactive: 1m
+              parsers:
+                - container:
+                  stream: stdout
+              processors:
+                - copy_fields:
+                    fields:
+                      - from: message
+                        to: event.original
+                    fail_on_error: false
+                    ignore_missing: true
+                - decode_json_fields:
+                    fields: [ "message"]
+                    process_array: false
+                    max_depth: 3
+                    target: ""
+                    overwrite_keys: true
+                    add_error_key: true
+                    expand_keys: true
+                - add_fields:
+                    target: log.format
+                    fields:
+                      content: "json"
+                      layout: 'spring-boot'
+                - rename:
+                    fields:
+                      - from: "log.level"
+                        to: "level"
+                    ignore_missing: false
+                    fail_on_error: true
+              pipeline: spring-boot
+
+setup.template.settings:
+  index.number_of_shards: 0
+
+processors:
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+# Write Filebeat own logs only to file to avoid catching them with itself in docker log files
+logging.level: info
+logging.to_files: false
+logging.to_syslog: false
+loggins.metrice.enabled: false
+
+setup:
+  kibana.host: "kibana:5601"
+  dashboards.enabled: true
+
+# X-pack optional module
+# xpack.monitoring.enabled: false
+# xpack.monitoring.elasticsearch.hosts: ["elasticsearch:9200"]

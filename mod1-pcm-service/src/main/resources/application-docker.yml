@@ -1,4 +1,4 @@
 spring:
   config:
     fail-fast: true
-    import: "optional:configserver:http://configuration-service.docker.svc:8888"
+    import: "optional:configserver:http://cfg-service.docker.svc:8888"

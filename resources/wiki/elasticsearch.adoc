@@ -3,12 +3,10 @@
 :icons: font
 :url-quickref:
 
+== Configuration
+
 Single Node installation
-
-https://docs.fluentbit.io/manual/pipeline/outputs/elasticsearch
-
 Kibana update replicas to '0', so yellow to green, because of a single node installation.
-
 
 PUT /_settings
 [source,json]
@@ -18,7 +16,76 @@ PUT /_settings
     }
 }
 
-/reference/7.15/security-minimal-setup.html to enable security.
+No security enabled, but this page describes a minimal setup:
+https://www.elastic.co/guide/en/elasticsearch/reference/current/security-minimal-setup.html
+
+== Getting Started
+
+After starting the elastic container, validate these are running.
+
+=== Check Elasticsearch is running
+
+[source,shell script]
+$ curl --user elastic:changeme http://localhost:9200
+{
+  "name" : "725c9942dec5",
+  "cluster_name" : "elasticsearch-net-service",
+  "cluster_uuid" : "SdHgI9CYT3WffvsF1YK5iQ",
+  "version" : {
+    "number" : "7.16.2",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "2b937c44140b6559905130a8650c64dbd0879cfb",
+    "build_date" : "2021-12-18T19:42:46.604893745Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.10.1",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
+
+=== Check Kibana running
+
+[source,shell script]
+$ curl --user elastic:changeme -I http://localhost:5601/api/status
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+referrer-policy: no-referrer-when-downgrade
+kbn-name: 38afc5067bc3
+kbn-license-sig: d6d176f5a586b32531eb24ecca4caccb8d4ef05c6e87eaeee07cabd2357901ba
+content-type: application/json; charset=utf-8
+cache-control: private, no-cache, no-store, must-revalidate
+content-length: 24189
+vary: accept-encoding
+Date: Wed, 29 Dec 2021 06:21:09 GMT
+Connection: keep-alive
+Keep-Alive: timeout=120
+
+=== Check APM running
+
+[source,shell script]
+$ curl --user elastic:changeme -I http://localhost:8200/
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+Date: Wed, 29 Dec 2021 06:22:01 GMT
+Content-Length: 150
+
+
+=== Install Elasticsearch template mapping and ingest pipelines
+
+The directory at the location the resources/scripts/es contains a setup_elastic.sh script to ingest the necessary elastic configuration.
+
+The following configuration items are created:
+
+* PUT _ingest/pipeline/json_extractor
+* PUT _ilm/policy/logs-docker
+* PUT _component_template/logs-docker-settings
+* PUT _component_template/logs-docker-mappings
+* PUT _index_template/logs-docker-template
+
+=== Export/Import Kibana Dashboard
 
 
 == Components
@@ -32,13 +99,14 @@ PUT /_settings
 == Logs app fields
 * https://www.elastic.co/guide/en/observability/7.16/logs-app-fields.html
 
-
 == Scripting
 
 === Painless
 
 
 == Relevant Articles
-https://github.com/xeraa/elastic-docker
-
+* https://github.com/xeraa/elastic-docker
+* https://github.com/elastic/apm-agent-java
 * https://www.elastic.co/guide/en/elasticsearch/painless/master/index.html
+
+
