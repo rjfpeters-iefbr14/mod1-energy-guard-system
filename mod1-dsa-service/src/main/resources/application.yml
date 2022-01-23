@@ -42,6 +42,15 @@ spring:
 #       producer:
 #         value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+  data:
+    mongodb:
+      database: dsa-system
+      authentication-database: admin
+      username: mongoadmin
+      password: secret
+      port: 27017
+      host: localhost
+
 app:
   kafka:
     producer:

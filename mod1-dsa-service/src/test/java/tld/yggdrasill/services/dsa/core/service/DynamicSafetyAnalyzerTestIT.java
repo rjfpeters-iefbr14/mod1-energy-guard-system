@@ -1,4 +1,4 @@
-package tld.yggdrasill.services.dsa.service.core;
+package tld.yggdrasill.services.dsa.core.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.internal.matchers.Any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,8 @@ import tld.yggdrasill.services.cgs.model.Payload;
 import tld.yggdrasill.services.dsa.client.GridServiceProducerClient;
 import tld.yggdrasill.services.dsa.client.contingency.ContingencyClient;
 import tld.yggdrasill.services.dsa.client.contingency.model.ContingencyResponse;
+import tld.yggdrasill.services.dsa.core.process.SafetyGuardEventState;
+import tld.yggdrasill.services.dsa.core.service.SafetyAndBalanceDeterminer;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -50,7 +53,11 @@ public class DynamicSafetyAnalyzerTestIT {
   @Autowired
   private GridServiceProducerClient producer;
 
-  @MockBean ContingencyClient contingencyClient;
+  @MockBean
+  ContingencyClient contingencyClient;
+
+  @MockBean
+  SafetyAndBalanceDeterminer safetyAndBalanceDeterminer;
 
   @Value("${app.kafka.producer.topic}")
   private String topic;
@@ -89,6 +96,8 @@ public class DynamicSafetyAnalyzerTestIT {
 
     when(contingencyClient.getContingencyById(contingencyId)).thenReturn(
       ContingencyResponse.builder().mRID(contingencyId).name("ST-location-somewhere").build());
+
+    when(safetyAndBalanceDeterminer.execute(event)).thenReturn(SafetyGuardEventState.NO_CONGESTION_DETECTED);
 
     //- when
     producer.send(event);

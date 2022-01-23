@@ -4,15 +4,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tld.yggdrasill.services.cgs.model.Activity;
 import tld.yggdrasill.services.cgs.model.End;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
+import tld.yggdrasill.services.cgs.model.Links;
 import tld.yggdrasill.services.cgs.model.MetaInf;
 import tld.yggdrasill.services.cgs.model.Payload;
+import tld.yggdrasill.services.cgs.model.SafetyDossier;
 import tld.yggdrasill.services.dsa.client.GridServiceProducerClient;
 import tld.yggdrasill.services.dsa.client.contingency.ContingencyClient;
 import tld.yggdrasill.services.dsa.client.contingency.model.ContingencyResponse;
+import tld.yggdrasill.services.dsa.core.process.SafetyGuardEventState;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -27,23 +32,18 @@ public class DynamicSafetyAnalyzer {
 
   private final GridServiceProducerClient kafkaProducer;
 
+  private final SafetyAndBalanceDeterminer congestionDeterminer;
   private final ContingencyClient contingencyClient;
 
   @Value("${info.app.name:undefined}")
   private String producerId;
 
-  private String determineAnalysisResult(GridServiceEvent event) {
-    String sample = String.valueOf(event.getMessageId().toString().charAt(0));
-    int remainder = Integer.parseInt(sample, 16) % 3; //determines if 3 is a factor
-    if (remainder == 0) {
-      return  "congestion-detected";
-    }
-    return "no-congestion-detected";
-  }
 
   public DynamicSafetyAnalyzer(GridServiceProducerClient kafkaProducer,
+    SafetyAndBalanceDeterminer congestionDeterminer,
     ContingencyClient contingencyClient) {
     this.kafkaProducer = kafkaProducer;
+    this.congestionDeterminer = congestionDeterminer;
     this.contingencyClient = contingencyClient;
   }
 
@@ -54,10 +54,7 @@ public class DynamicSafetyAnalyzer {
     ContingencyResponse contingency = contingencyClient.getContingencyById(mRID);
     log.info("Contingency: {} -> {}", kv("contingencyId",mRID),contingency.toString());
 
-    //-- sample analyzing this event
-    try{Thread.sleep(4000);}catch(InterruptedException e){
-      log.warn(e.getMessage());
-    }
+    SafetyGuardEventState state = congestionDeterminer.execute(event);
 
     UUID uuid = UUID.randomUUID();
     Instant createdAt = Instant.now();
@@ -67,9 +64,8 @@ public class DynamicSafetyAnalyzer {
     event.setCreatedDateTime(createdAt.getEpochSecond());
     event.setProducerId(producerId);
 
-    String state = determineAnalysisResult(event);
     MetaInf metaInf;
-    if ("no-congestion-detected".equalsIgnoreCase(state)) {
+    if (state == SafetyGuardEventState.NO_CONGESTION_DETECTED) {
       metaInf =  new MetaInf()
         .withEnd(new End()
           .withEnder(producerId)
@@ -86,8 +82,14 @@ public class DynamicSafetyAnalyzer {
 
     Payload payload = event.getPayload();
     payload
-      .withState(state)
+      .withState(state.getState())
       .withMetaInf(metaInf);
+
+    URI location =
+      ServletUriComponentsBuilder.fromPath("http://dsa-service.docker.svc/safety-dossier")
+        .queryParam("caseId",payload.getmRID()).build().toUri();
+    Links links = new Links()
+      .withSafetyDossier(new SafetyDossier().withHref(location.toString()));
 
     kafkaProducer.send(event);
   }
