@@ -19,7 +19,7 @@ import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.core.repository.ContingencyRepository;
 import tld.yggdrasill.services.gcm.helper.ContingencyHelper;
 
-@ExtendWith(SpringExtension.class)
+//@ExtendWith(SpringExtension.class) -> as of spring-boot 2.1 no longer needed
 class ContingencyServiceTest {
 
   @Mock private ContingencyRepository contingencyRepository;

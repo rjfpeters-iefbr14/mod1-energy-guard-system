@@ -45,12 +45,12 @@ import java.util.stream.Collectors;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
-@RestController
-@Validated
 @Slf4j
+@Validated
+@RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ContingencyController {
-  public static MediaType DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE = MediaType.valueOf("application/vnd.contingency.v1+json");
+  public static MediaType DEFAULT_APPLICATION_JSON_VALUE = MediaType.valueOf("application/vnd.contingency.v1+json");
 
   private final ContingencyService contingencyService;
 
@@ -97,7 +97,7 @@ public class ContingencyController {
     }
 
     ContingencyResponse response = modelMapper.map(contingency, ContingencyResponse.class);
-    return ResponseEntity.created(location).contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
+    return ResponseEntity.created(location).contentType(DEFAULT_APPLICATION_JSON_VALUE).body(response);
   }
 
   @GetMapping(value = "/")
@@ -124,7 +124,7 @@ public class ContingencyController {
       throw new ContingencyNotFound();
 
     List<ContingencyResponse> contingencyResponses = mapList(contingencies,ContingencyResponse.class);
-    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(new ContingenciesResponse(contingencyResponses));
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_VALUE).body(new ContingenciesResponse(contingencyResponses));
   }
 
 
@@ -142,7 +142,7 @@ public class ContingencyController {
       .orElseThrow(() -> new ContingencyNotFound(id));
 
     ContingencyResponse response = modelMapper.map(contingency, ContingencyResponse.class);
-    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_VALUE).body(response);
   }
 
   //TODO:- add caching information
@@ -155,7 +155,7 @@ public class ContingencyController {
     List<ContingencyEquipment> equipments = contingency.getContingencyEquipments();
 
     ContingencyEquipmentsResponse response = new ContingencyEquipmentsResponse(equipments);
-    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_VALUE).body(response);
   }
 
   @GetMapping(value = "/{id}/topological-island")
@@ -169,7 +169,7 @@ public class ContingencyController {
 
     TopologicalIslandResponse response = new TopologicalIslandResponse();
     response.setTerminals(island.getTerminals());
-    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_VALUE).body(response);
   }
 
   @PutMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
@@ -184,7 +184,7 @@ public class ContingencyController {
     modelMapper.typeMap(Contingency.class, ContingencyResponse.class);
     ContingencyResponse response = modelMapper.map(contingency, ContingencyResponse.class);
 
-    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE).body(response);
+    return ResponseEntity.ok().contentType(DEFAULT_APPLICATION_JSON_VALUE).body(response);
   }
 
   @DeleteMapping(value = "/{id}")

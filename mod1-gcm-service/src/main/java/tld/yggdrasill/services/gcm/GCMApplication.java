@@ -14,8 +14,8 @@ vault -> include mongo configuration for getting secure properties
 zalando-problem-spring-web -> Spring Boot, make sure you disable the ErrorMvcAutoConfiguration
 */
 
-@SpringBootApplication(exclude = {ErrorMvcAutoConfiguration.class})
 @Slf4j
+@SpringBootApplication(exclude = {ErrorMvcAutoConfiguration.class})
 public class GCMApplication implements ApplicationRunner {
   public static void main(String... args) throws Exception {
     SpringApplication.run(GCMApplication.class, args);

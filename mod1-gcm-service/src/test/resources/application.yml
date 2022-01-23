@@ -4,7 +4,7 @@ spring:
 # -- the uri can not be combined with the explicit settings
 #      uri: mongodb://${embedded.mongodb.username}:${embedded.mongodb.password}@${embedded.mongodb.host}:${embedded.mongodb.port}/${embedded.mongodb.database}?authSource=admin&authMechanism=SCRAM-SHA-1
 
-      database: deo-system
+      database: gcm-system
       authentication-database: admin
 # -- these values are provide by the vault
 #      username: ${embedded.mongodb.username}

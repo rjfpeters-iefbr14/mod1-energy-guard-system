@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import tld.yggdrasill.services.gcm.api.model.ContingencyRequest;
-import tld.yggdrasill.services.gcm.api.model.ContingencyResponse;
 import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.core.model.ContingencyStatus;
 import tld.yggdrasill.services.gcm.core.repository.ContingencyRepository;
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
   properties = {
-    "embedded.mongo.database=gcs-system"
+    "embedded.mongo.database=gcm-system"
   })
 @AutoConfigureMockMvc
 public class ContingencyControllerIT {
@@ -61,7 +60,7 @@ public class ContingencyControllerIT {
         .accept(MediaType.APPLICATION_JSON))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_VALUE))
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies").exists())
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies[*].mRID").isNotEmpty());
   }
@@ -75,7 +74,7 @@ public class ContingencyControllerIT {
         .accept(MediaType.APPLICATION_JSON))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_VALUE))
       .andExpect(MockMvcResultMatchers.jsonPath("$.mRID").isNotEmpty());
   }
 
@@ -122,7 +121,7 @@ public class ContingencyControllerIT {
         .content(ow.writeValueAsString(contingency)))
       .andDo(print()) //
       .andExpect(status().isCreated())
-      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_VALUE))
       .andExpect(MockMvcResultMatchers.jsonPath("$.mRID").exists());
   }
 
@@ -156,7 +155,7 @@ public class ContingencyControllerIT {
         .accept(MediaType.APPLICATION_JSON))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE))
+      .andExpect(content().contentType(ContingencyController.DEFAULT_APPLICATION_JSON_VALUE))
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies").exists())
       .andExpect(MockMvcResultMatchers.jsonPath("$.contingencies[*].mRID").isNotEmpty());
   }

@@ -11,11 +11,11 @@ spring:
     kubernetes:
       enabled: false
 
-    vault:
-      enabled: true
-      uri: http://localhost:8200
-      scheme: http
-      connection-timeout: 5000
-      read-timeout: 15000
-
-      token: 00000000-0000-0000-0000-000000000000
+#    vault:
+#      enabled: true
+#      uri: http://localhost:8200
+#      scheme: http
+#      connection-timeout: 5000
+#      read-timeout: 15000
+#
+#      token: 00000000-0000-0000-0000-000000000000
