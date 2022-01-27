@@ -1,0 +1,11 @@
+= Build with REST API's
+
+
+
+== problem handling
+
+To comply with RFC-7807 as body.
+
+articles
+
+* https://www.baeldung.com/problem-spring-web

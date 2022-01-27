@@ -45,7 +45,7 @@ filebeat.autodiscover:
                         to: "level"
                     ignore_missing: false
                     fail_on_error: true
-              pipeline: spring-boot
+#              pipeline: spring-boot
 
 setup.template.settings:
   index.number_of_shards: 0

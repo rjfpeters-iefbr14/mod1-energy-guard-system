@@ -3,10 +3,15 @@
 :icons: font
 :url-quickref:
 
-activate the following test containers for integration tests:
+The following activate the following test containers for integration tests:
 
 - testcontainer - mongo
+
+
+autonomous-grid-manager
 - testcontainer - kafka
+- embedded-testcontainer - kafka
+- embedded - testcontainer - postgres
 
 == Relevant Articles
 * https://www.testcontainers.org/

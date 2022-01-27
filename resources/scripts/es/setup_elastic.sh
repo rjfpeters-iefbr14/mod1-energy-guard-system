@@ -19,24 +19,24 @@ curl -XPUT "http://localhost:9200/_settings" -H 'kbn-xsrf: true' -H 'Content-Typ
     "number_of_replicas" : 0
   }
 }'
-echo "One single node, so prevent healt on all indexes yellow."
+echo -e "\nOne single node, so prevent health on all indexes yellow."
 
 # shellcheck disable=SC2046
 jq --raw-input -s -nc --slurpfile j ./init/json-extractor-script.json '$j[] | .processors[0].script.source = (input | tostring)' <<< $(cat ./init/json-extractor.script) |
-curl -XPUT "http://localhost:9200/_ingest/pipeline/json_extractor" -H 'Content-Type: application/json' -d @-
-echo "Loading pipeline ingest chain..."
+curl -XPUT "http://localhost:9200/_ingest/pipeline/logs-docker" -H 'Content-Type: application/json' -d @-
+echo -e "\nLoading pipeline ingest chain..."
 
 curl -XPUT "http://localhost:9200/_ilm/policy/logs-docker" -H 'Content-Type: application/json' -d @./init/logs-docker-ilm.json
-echo "Loading policy ingest chain..."
+echo -e "\nLoading policy ingest chain..."
 
 curl -XPUT "http://localhost:9200/_component_template/logs-docker-settings" -H 'Content-Type: application/json' -d @./init/logs-docker-settings.json
-echo "Loading settings ingest chain..."
+echo -e "\nLoading settings ingest chain..."
 
 curl -XPUT "http://localhost:9200/_component_template/logs-docker-mappings" -H 'Content-Type: application/json' -d @./init/logs-docker-mappings.json
-echo "Loading mapping ingest chain..."
+echo -e "\nLoading mapping ingest chain..."
 
 curl -XPUT "http://localhost:9200/_index_template/logs-docker" -H 'Content-Type: application/json' -d @./init/logs-docker-template.json
-echo "Loading template ingest chain..."
+echo -e "\nLoading template ingest chain..."
 
 # Create Kibana index pattern
 curl -X POST "localhost:5601/api/index_patterns/index_pattern" -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'

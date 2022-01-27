@@ -1,0 +1,21 @@
+= Build with Kafka
+
+
+The send API returns a ListenableFuture object. If we want to block the sending thread and get the result about the sent message, we can call the get API of the ListenableFuture object. The thread will wait for the result, but it will slow down the producer.
+
+Kafka is a fast stream processing platform. Therefore, it's better to handle the results asynchronously so that the subsequent messages do not wait for the result of the previous message.
+We can do this through a callback.
+
+
+
+@EnableKafka annotation is required on the configuration class to enable detection of @KafkaListener annotation on spring-managed beans:
+
+
+
+We can configure listeners to consume specific types of messages by adding a custom filter. This can be done by setting a RecordFilterStrategy to the KafkaListenerContainerFactory:
+
+
+
+== Relevant Articles
+* https://www.baeldung.com/spring-kafka
+

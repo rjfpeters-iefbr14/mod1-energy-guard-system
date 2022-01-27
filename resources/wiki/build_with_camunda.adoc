@@ -29,6 +29,44 @@ Visibility: The business key is displayed prominently in applications like Camun
 
 
 
+== Testing
+
+
+=== Springboot test
+
+Add @SpringBootTest
+[source]
+----
+  properties = {
+    "camunda.bpm.generate-unique-process-engine-name=true",
+    // this is only needed if a SpringBootProcessApplication
+    // is used for the test
+    "camunda.bpm.generate-unique-process-application-name=true",
+    "spring.datasource.generate-unique-name=true"
+    // additional properties...
+    // "camunda.bpm.eventing.execution=true",
+    // "camunda.bpm.eventing.history=true",
+    // "camunda.bpm.eventing.task=true"
+  }
+----
+
+
+=== HTTP stack
+[source]
+webEnvironment = SpringBootTest.WebEnvironment.NONE
+
+then mock the following
+
+[source]
+@MockBean
+CamundaBpmRestInitializer restInitializer;
+
+
+
+
+* https://github.com/camunda/camunda-bpm-assert
+* https://github.com/camunda-community-hub/camunda-platform-scenario
+
 
 
 == Camunda Modeller plugins

@@ -354,6 +354,7 @@ services:
       - kafka
       - filebeat
       - apm-server
+      - postgres
 
   gcm-service:
     image: yggdrasill.tld/mod1-gcm-service
@@ -373,7 +374,6 @@ services:
       - JAVA_OPTS=-Dspring.profiles.active=docker
     depends_on:
       - cfg-service
-      - kafka
       - filebeat
       - apm-server
       - mongodb

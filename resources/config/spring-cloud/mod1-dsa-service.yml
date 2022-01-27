@@ -8,6 +8,10 @@ spring:
 #     consumer:
 #       bootstrap.servers: kafka.docker.svc
 
+  data:
+    mongodb:
+      host: mongodb.docker.svc
+
 app:
 #  kafka:
 #    producer:
