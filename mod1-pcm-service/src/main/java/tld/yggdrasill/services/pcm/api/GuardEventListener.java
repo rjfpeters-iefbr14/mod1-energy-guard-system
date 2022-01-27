@@ -50,6 +50,11 @@ public class GuardEventListener {
       if ("solution-determination".equals(event.getPayload().getState())) {
         powerCapacityManager.processFulfillment(event);
       }
+
+      if ("congestion-detected".equals(event.getPayload().getState())) {
+        powerCapacityManager.processFulfillment(event);
+      }
+
     } catch (JsonProcessingException e) {
       log.error(e.getMessage());
     }
