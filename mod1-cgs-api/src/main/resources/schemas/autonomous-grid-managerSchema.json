@@ -123,6 +123,14 @@
                   "type": "string"
                 }
               }
+            },
+            "safetyDossier": {
+              "type": "object",
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
