@@ -29,4 +29,4 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Build with Maven
-        run: ./mvnw -version && whoami && umask -S && umask a+rw && umask -S && ./mvnw clean verify -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.count=3 --no-snapshot-updates --batch-mode --no-transfer-progress
+        run: mvn -version && whoami && umask -S && umask a+rw && umask -S && mvn clean verify -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.count=3 --no-snapshot-updates --batch-mode --no-transfer-progress
