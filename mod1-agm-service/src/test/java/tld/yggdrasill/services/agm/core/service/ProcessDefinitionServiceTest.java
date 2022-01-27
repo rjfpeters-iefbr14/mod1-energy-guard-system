@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(ProcessEngineExtension.class)
+//@ExtendWith(ProcessEngineExtension.class)
 class ProcessDefinitionServiceTest {
 
-  @Test
+//  @Test
   void activate() {
   }
 }

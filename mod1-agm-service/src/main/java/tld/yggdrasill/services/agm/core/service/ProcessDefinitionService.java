@@ -6,19 +6,8 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
-import org.camunda.bpm.model.bpmn.instance.BpmnModelElementInstance;
-import org.camunda.bpm.model.bpmn.instance.Documentation;
-import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.SendTask;
-import org.camunda.bpm.model.bpmn.instance.TimeCycle;
-import org.camunda.bpm.model.bpmn.instance.TimeDuration;
-import org.camunda.bpm.model.bpmn.instance.TimerEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.di.DiagramElement;
-import org.camunda.bpm.model.xml.ModelInstance;
-import org.camunda.bpm.model.xml.instance.DomElement;
-import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -28,7 +17,6 @@ import tld.yggdrasill.services.agm.core.service.helpers.ProcessDefinitionHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 

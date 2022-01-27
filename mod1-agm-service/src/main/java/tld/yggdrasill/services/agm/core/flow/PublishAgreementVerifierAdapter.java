@@ -19,10 +19,10 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Slf4j
 @Component
-@Named("publishSafetyAssessment")
-public class PublishSafetyAssessmentAdapter implements JavaDelegate {
+@Named("publishAgreementVerifier")
+public class PublishAgreementVerifierAdapter implements JavaDelegate {
 
-  public static final String ERROR_SAFETY_ASSESSMENT = "Error_SafetyAssessment";
+  public static final String ERROR_SAFETY_ASSESSMENT = "Error_AgreementVerifier";
 
   private final ContingencyClient contingencyClient;
 
@@ -31,7 +31,7 @@ public class PublishSafetyAssessmentAdapter implements JavaDelegate {
   @Value("${info.app.name}")
   private String producerId;
 
-  public PublishSafetyAssessmentAdapter(
+  public PublishAgreementVerifierAdapter(
     ContingencyClient contingencyClient,
     GridServiceProducerClient kafkaProducer) {
     this.contingencyClient = contingencyClient;
@@ -52,11 +52,12 @@ public class PublishSafetyAssessmentAdapter implements JavaDelegate {
 
       String businessKey = UUID.randomUUID().toString();
       execution.setProcessBusinessKey(businessKey);
-      log.info("Starting Contingency Guard: {}, {}, {}", kv("contingencyId",
+      log.info("Starting Contingency Verifier: {}, {}, {}", kv("contingencyId",
         contingencyId), kv("contingencyName", contingencyName), kv("businessKey", businessKey));
 
       GridServiceEvent event = GridServiceEventBuilder
         .buildEvent(producerId, contingencyId, contingencyName, businessKey);
+      event.getPayload().setState("contingency-verifier");
       kafkaProducer.send(event);
     } catch (Exception e) {
       log.error("ERROR_SAFETY_ASSESSMENT {} {}",kv("contingencyName", contingencyName),e.getMessage());

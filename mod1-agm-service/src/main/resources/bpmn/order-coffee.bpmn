@@ -18,11 +18,11 @@
       <bpmn:incoming>Flow_0br39mu</bpmn:incoming>
       <bpmn:outgoing>Flow_1endfqu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="deliver-coffee-order" name="Deliver Coffee Order" camunda:type="external" camunda:topic="deliverCoffeeOrder">
+    <bpmn:serviceTask id="deliver-coffee-order" name="Deliver Coffee Order" camunda:delegateExpression="#{loggerDelegate}">
       <bpmn:incoming>Flow_1endfqu</bpmn:incoming>
       <bpmn:outgoing>Flow_0byan59</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="retrieve-coffee-order" name="Retrieve Coffee Order" camunda:class="tld.yggdrasill.services.agm.core.delegate.RetrieveCoffeeOrderDelegate">
+    <bpmn:serviceTask id="retrieve-coffee-order" name="Retrieve Coffee Order" camunda:delegateExpression="#{retrieveCoffeeOrder}">
       <bpmn:incoming>Flow_00iop9r</bpmn:incoming>
       <bpmn:outgoing>Flow_17tr72j</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -46,7 +46,7 @@
     <bpmn:association id="Association_00z8m26" sourceRef="pour-coffee-in-cup" targetRef="TextAnnotation_0dfsf8h" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="order-coffee">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="order">
       <bpmndi:BPMNEdge id="Flow_0br39mu_di" bpmnElement="Flow_0br39mu">
         <di:waypoint x="610" y="200" />
         <di:waypoint x="710" y="200" />

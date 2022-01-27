@@ -5,8 +5,8 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
-@Component
 @Slf4j
+@Component
 public class SayHelloDelegate implements JavaDelegate {
 
   @Override

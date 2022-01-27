@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ActivityDecisionMapTest {
+public class ActivityDecisionMapTest {
 
   @Test
   void successful_from_congestion_detected() {

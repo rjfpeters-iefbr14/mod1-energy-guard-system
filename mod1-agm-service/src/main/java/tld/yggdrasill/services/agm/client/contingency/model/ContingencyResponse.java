@@ -12,7 +12,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Contingency {
+public class ContingencyResponse {
 
   @JsonProperty(value = "mRID", index = 0)
   private String mRID;

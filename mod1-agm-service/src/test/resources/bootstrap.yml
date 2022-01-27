@@ -11,13 +11,14 @@ spring:
 
 embedded:
   postgresql:
-    docker-image: 'bitnami/postgresql:13.3.0'
+    enabled: true
+#    docker-image: 'postgres:12-alpine'
     wait-timeout-in-seconds: 40
-    command: '/opt/bitnami/scripts/postgresql/run.sh'
+    database: 'default_database'
+    username: username
+    password: password
     startupLogCheckRegex: '.*database system is ready to accept connections.*'
 
   kafka:
     enabled: true
-    dockerImageVersion: '7.0.0'
-    topicsToCreate: nonSecureTopic,secureTopic,embedded-test-topic
-    secureTopics: secureTopic
+#    dockerImageVersion: '7.0.0' -- admin client doesn't work

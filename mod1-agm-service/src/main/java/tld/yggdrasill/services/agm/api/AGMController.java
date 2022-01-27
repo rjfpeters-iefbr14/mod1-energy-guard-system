@@ -1,8 +1,13 @@
 package tld.yggdrasill.services.agm.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.ProcessEngine;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tld.yggdrasill.services.agm.api.common.exceptions.BadProcessDefinitionRequest;
@@ -12,64 +17,50 @@ import tld.yggdrasill.services.agm.config.AGMApplicationConstants;
 import tld.yggdrasill.services.agm.core.model.ProcessDefinition;
 import tld.yggdrasill.services.agm.core.service.ProcessDefinitionService;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@Path("/contingencies")
+@RequestMapping("/contingencies")
 public class AGMController {
-  private final String DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE = "application/vnd.contingency-definition.v1+json";
-
-  private final ProcessEngine camunda;
+  public static MediaType DEFAULT_APPLICATION_JSON_VALUE =
+    MediaType.valueOf("application/vnd.contingency-definition.v1+json");
 
   private final ProcessDefinitionService processDefinitionService;
 
-  public AGMController(ProcessEngine camunda,
-    ProcessDefinitionService processDefinitionService) {
-    this.camunda = camunda;
+  private final ModelMapper modelMapper;
+
+  public AGMController(ProcessDefinitionService processDefinitionService) {
     this.processDefinitionService = processDefinitionService;
+
+    modelMapper = new ModelMapper();
+    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+    modelMapper.typeMap(ProcessDefinition.class, ContingencyGuardRequest.class);
   }
 
-  @GET
-  @Produces(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
-  public Response getList() {
-
-    var list = camunda.getHistoryService().
-      createHistoricProcessInstanceQuery().processDefinitionKey(AGMApplicationConstants.GUARD_BPMN).list();
-    log.info("Found {} process instances.", list.size());
-    List<String> pidList = new ArrayList<>();
-    list.forEach(e -> pidList.add(e.getRootProcessInstanceId()));
-    return Response.ok().entity(pidList).build();
-  }
-
-  @POST
-  @Consumes(APPLICATION_JSON_VALUE)
-  @Produces(DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
-  public Response createContingencyGuard(
+//  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE)
+  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+  public ResponseEntity<ContingencyGuardResponse> createContingencyGuard(
     @RequestBody final ContingencyGuardRequest contingencyGuardRequest) {
-    log.info("{}", contingencyGuardRequest.toString());
+    log.info("ContingencyGuard: {}", contingencyGuardRequest.toString());
 
     ProcessDefinition processDefinition;
     try {
-      processDefinition = processDefinitionService.activate(ProcessDefinition.builder()
-        .contingencyId(contingencyGuardRequest.getContingencyId())
-        .contingencyName(contingencyGuardRequest.getContingencyName())
-        .specificationFileName(AGMApplicationConstants.GUARD_BPMN_FILE)
-        .build()
-      );
+      processDefinition = modelMapper.map(contingencyGuardRequest,ProcessDefinition.class);
+
+      switch (processDefinition.getProductGroup()) {
+        case "D" -> processDefinition.setSpecificationFileName(
+          AGMApplicationConstants.CONTINGENCY_VERIFY_EVENT_BPMN);
+        case "C" -> processDefinition.setSpecificationFileName(
+          AGMApplicationConstants.CONTINGENCY_SAFETY_GUARD_EVENT_BPMN);
+        default -> throw new BadProcessDefinitionRequest("unknown productGroup");
+      }
+
+      processDefinition = processDefinitionService.activate(processDefinition);
     } catch (IOException e) {
       throw new BadProcessDefinitionRequest(e.getMessage());
     }
@@ -78,8 +69,8 @@ public class AGMController {
     Optional<String> value = Optional.ofNullable(processDefinition.getCamundaProcessDefinitionId());
     if (value.isPresent()) {
       location = ServletUriComponentsBuilder.fromCurrentRequest()
-        //-- current path is /resources/contingencies
-        .path("/../../resources/job-definition/{id}")
+        //-- current path is /contingencies
+        .path("/../process-definition/{id}")
         .buildAndExpand(value.get())
         .toUri();
     } else {
@@ -92,6 +83,6 @@ public class AGMController {
       .camundaProcessDefinitionId(processDefinition.getCamundaProcessDefinitionId())
       .build();
 
-    return Response.accepted().location(location).entity(response).build();
+    return ResponseEntity.created(location).contentType(DEFAULT_APPLICATION_JSON_VALUE).location(location).body(response);
   }
 }

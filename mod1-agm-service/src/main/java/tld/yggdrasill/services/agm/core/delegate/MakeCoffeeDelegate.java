@@ -5,8 +5,11 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
-@Component("makeCoffee")
+import javax.inject.Named;
+
 @Slf4j
+@Component
+@Named("makeCoffee")
 public class MakeCoffeeDelegate implements JavaDelegate {
 
   public void execute(DelegateExecution execution) throws Exception {

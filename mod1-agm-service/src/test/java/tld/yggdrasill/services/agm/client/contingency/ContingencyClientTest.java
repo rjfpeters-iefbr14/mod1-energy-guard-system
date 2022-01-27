@@ -7,18 +7,25 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import tld.yggdrasill.services.agm.client.contingency.config.exceptions.BadRequestException;
 import tld.yggdrasill.services.agm.client.contingency.config.exceptions.ContingencyNotFoundException;
-import tld.yggdrasill.services.agm.client.contingency.model.ActuatorHealthResponse;
-import tld.yggdrasill.services.agm.client.contingency.model.Contingency;
+import tld.yggdrasill.services.agm.client.contingency.model.ContingencyResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(
-  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  properties = {
+    "camunda.bpm.generate-unique-process-engine-name=true",
+    // this is only needed if a SpringBootProcessApplication
+    // is used for the test
+    "camunda.bpm.generate-unique-process-application-name=true",
+    "spring.datasource.generate-unique-name=true",
+    // additional properties...
+  }
 )
-class ContingencyClientTest {
+//@Disabled
+public class ContingencyClientTest {
   @RegisterExtension
   static WireMockExtension CONTINGENCY_SERVICE = WireMockExtension.newInstance()
     .options(WireMockConfiguration.wireMockConfig().port(8094))
@@ -28,23 +35,12 @@ class ContingencyClientTest {
   private ContingencyClient contingencyClient;
 
   @Test
-  void should_successful_return_health() {
-    String responseBody = "{ \"status\": \"UP\"}";
-    CONTINGENCY_SERVICE.stubFor(
-      WireMock.get("/manage/health").willReturn(WireMock.okJson(responseBody)));
-
-    ActuatorHealthResponse contingency = contingencyClient.health();
-
-    assertThat(contingency.getStatus()).isNotNull().isEqualTo("UP");
-  }
-
-  @Test
   void should_successful_return_contingency() throws Exception {
     String responseBody = "{ \"mRID\": \"828bc3cb-52f0-482b-8247-d3db5c87c941\", \"name\": \"RS Neerijnen\"}";
     CONTINGENCY_SERVICE.stubFor(
       WireMock.get("/828bc3cb-52f0-482b-8247-d3db5c87c941").willReturn(WireMock.okJson(responseBody)));
 
-    Contingency contingency = contingencyClient.getContingencyById("828bc3cb-52f0-482b-8247-d3db5c87c941");
+    ContingencyResponse contingency = contingencyClient.getContingencyById("828bc3cb-52f0-482b-8247-d3db5c87c941");
 
     assertThat(contingency.getMRID()).isNotNull();
     assertThat(contingency.getName()).isEqualTo("RS Neerijnen");
@@ -58,9 +54,9 @@ class ContingencyClientTest {
       WireMock.get("/bc070161-bb2c-4d2c-8119-4d409e4c4f08")
         .willReturn(WireMock.aResponse().withStatus(404).withBody(responseBody)));
 
-    assertThatThrownBy(() -> {
-      contingencyClient.getContingencyById("bc070161-bb2c-4d2c-8119-4d409e4c4f08");
-    }).isInstanceOf(ContingencyNotFoundException.class)
+    assertThatThrownBy(() ->
+      contingencyClient.getContingencyById("bc070161-bb2c-4d2c-8119-4d409e4c4f08")).isInstanceOf(
+        ContingencyNotFoundException.class)
       .hasMessageContaining("404")
       .hasMessageContaining("bc070161-bb2c-4d2c-8119-4d409e4c4f08");
   }

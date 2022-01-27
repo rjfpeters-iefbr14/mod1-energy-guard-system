@@ -9,6 +9,16 @@
       "name": "app.kafka.consumer.topic",
       "type": "java.lang.String",
       "description": "Description for app.kafka.consumer.topic."
+    },
+    {
+      "name": "app.client.contingency-service.url",
+      "type": "java.lang.String",
+      "description": "Description for app.client.contingency-service.url."
+    },
+    {
+      "name": "app.camunda.tenant",
+      "type": "java.lang.String",
+      "description": "Description for app.camunda.tenant."
     }
   ]
 }

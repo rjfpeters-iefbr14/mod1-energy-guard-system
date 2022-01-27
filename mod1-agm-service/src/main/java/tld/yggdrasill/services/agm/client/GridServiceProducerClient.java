@@ -2,29 +2,28 @@ package tld.yggdrasill.services.agm.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import net.logstash.logback.argument.StructuredArguments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Slf4j
-@Service
-public class GridServiceProducerService {
+@Component
+public class GridServiceProducerClient {
 
   private final ObjectMapper objectMapper;
 
-  private final KafkaTemplate<Integer, String> kafkaTemplate;
+  private final KafkaTemplate<String, String> kafkaTemplate;
 
   @Value("${app.kafka.producer.topic}")
   String topic;
 
   @Autowired
-  public GridServiceProducerService(ObjectMapper objectMapper,
-    KafkaTemplate<Integer, String> kafkaTemplate) {
+  public GridServiceProducerClient(ObjectMapper objectMapper,
+    KafkaTemplate<String, String> kafkaTemplate) {
     this.objectMapper = objectMapper;
     this.kafkaTemplate = kafkaTemplate;
   }

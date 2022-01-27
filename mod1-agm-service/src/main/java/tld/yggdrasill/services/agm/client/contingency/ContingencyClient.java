@@ -7,7 +7,7 @@ import tld.yggdrasill.services.agm.client.contingency.config.FeignClientConfigur
 import tld.yggdrasill.services.agm.client.contingency.config.exceptions.BadRequestException;
 import tld.yggdrasill.services.agm.client.contingency.config.exceptions.ContingencyNotFoundException;
 import tld.yggdrasill.services.agm.client.contingency.model.ActuatorHealthResponse;
-import tld.yggdrasill.services.agm.client.contingency.model.Contingency;
+import tld.yggdrasill.services.agm.client.contingency.model.ContingencyResponse;
 
 @FeignClient(name = "contingency-service",
 	url = "${app.client.contingency-service.url}",
@@ -18,5 +18,5 @@ public interface ContingencyClient {
 	ActuatorHealthResponse health();
 
 	@GetMapping(value = "/{mRID}")
-	Contingency getContingencyById(@PathVariable("mRID") String mRID) throws ContingencyNotFoundException, BadRequestException;
+  ContingencyResponse getContingencyById(@PathVariable("mRID") String mRID) throws ContingencyNotFoundException, BadRequestException;
 }

@@ -48,6 +48,8 @@ spring:
     password: password
 
 app:
+  camunda:
+    tenant: 15769db8-dc0d-474e-a0bf-ee2a3c5942a0
   kafka:
     producer:
       topic: net-service-topic

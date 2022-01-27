@@ -58,6 +58,4 @@ public class AGMApplication implements ApplicationRunner {
       }
     };
   }
-
-
 }
