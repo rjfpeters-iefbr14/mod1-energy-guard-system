@@ -33,13 +33,14 @@ spec:
   template:
     metadata:
       labels:
+        app.elastic.logs.json: enable
         app.kubernetes.io/name: mod1-agm-service
         blinktShow: 'true'
         blinktColor: "FFFF00"
     spec:
       containers:
         - name: mod1-agm-service
-          image: yggdrasill.tld/mod1-agm-system
+          image: yggdrasill.tld/mod1-agm-service
           imagePullPolicy: Always
           env:
 #             - name: TRUSTSTORE_JKS
@@ -59,9 +60,11 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: ELASTIC_APM_SERVER_URL
+              value: "http://apm-server.default.svc:8200"
           ports:
             - name: api
-              containerPort: 8091
+              containerPort: 8093
             - name: healthz
               containerPort: 9090
 #          readinessProbe:
@@ -80,13 +83,13 @@ spec:
 #            timeoutSeconds: 10
 #            periodSeconds: 8
 #            failureThreshold: 1
-          resources:
+#          resources:
 #            limits:
 #              cpu: 1500m
 #              memory: 500Mi
-            requests:
-              cpu: 50m
-              memory: 150Mi
+#            requests:
+#              cpu: 50m
+#              memory: 150Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
 #           volumeMounts:

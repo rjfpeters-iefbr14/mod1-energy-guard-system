@@ -1,3 +1,5 @@
+info.app.name: mod1-agm-service
+---
 spring:
   application:
     name: mod1-agm-service

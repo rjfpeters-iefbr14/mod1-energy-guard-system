@@ -18,6 +18,12 @@ info:
 server:
   port: 8093
 
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: FULL
+
 spring:
   application:
     name: mod1-agm-service
@@ -58,6 +64,8 @@ app:
   client:
     contingency-service:
       url: "http://localhost:8094"
+    safety-dossier-service:
+      url: "http://localhost:8093"
 
 camunda:
   bpm:
@@ -70,12 +78,6 @@ camunda:
       create: All tasks
     history-level: full
     enabled: 'true'
-#    application:
-#      delete-upon-undeploy: false
-#      scan-for-process-definitions: false
-#      deploy-changed-only: true
-#      resume-previous-versions: true
-#      resume-previous-by: a value
     job-execution:
       enabled: true
     metrics:
@@ -83,6 +85,7 @@ camunda:
       db-reporter-activate: false
     generic-properties.properties:
       telemetry-reporter-activate: false
+    auto-deployment-enabled: false
 
 #add the following configuration to change default port
 management:

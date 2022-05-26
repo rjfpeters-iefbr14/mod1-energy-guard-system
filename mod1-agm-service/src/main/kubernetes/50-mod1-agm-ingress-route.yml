@@ -1,18 +1,47 @@
 ---
 apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ecms-agm-stripprefix
+  labels:
+    app.kubernetes.io/name: contingency-guard-system
+spec:
+  stripPrefix:
+    prefixes:
+      - /agm
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: mod1-agm-department
+  name: mod1-agm-service
   labels:
-    app.kubernetes.io/name: kafka-system
+    app.kubernetes.io/name: contingency-guard-system
 spec:
   entryPoints:
     - http
   routes:
     - kind: Rule
-      match: Host(`cgs.apps.yggdrasill.tld`) && PathPrefix(`/agm`)
-#      middlewares:
-#        - name: deo-stripprefix
+      match: Host(`ecms.apps.yggdrasill.tld`) && PathPrefix(`/agm`)
+      middlewares:
+        - name: ecms-agm-stripprefix
       services:
         - name: mod1-agm-service
-          port: 8091
+          port: 8093
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mod1-agm-dashboard
+  labels:
+    app.kubernetes.io/name: contingency-guard-system
+spec:
+  entryPoints:
+    - http
+  routes:
+    - kind: Rule
+      match: Host(`agm.apps.yggdrasill.tld`)
+#      middlewares:
+#        - name: ecms-agm-stripprefix
+      services:
+        - name: mod1-agm-service
+          port: 8093
