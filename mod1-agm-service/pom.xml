@@ -16,6 +16,7 @@
   <description>Sample Kafka/Camunda system :: agm-service</description>
 
   <properties>
+    <maven.build.timestamp.format>yyyyMMdd-HHmmssSSS</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
@@ -32,7 +33,7 @@
     <camunda-assert.version>12.0.0</camunda-assert.version>
     <camunda-spin.version>1.6.7</camunda-spin.version>
     <camunda-scenario.version>2.0.0.alpha.2</camunda-scenario.version>
-    <postgresql.version>42.3.1</postgresql.version>
+    <postgresql.version>42.3.3</postgresql.version>
 
     <lombok.version>1.18.22</lombok.version>
     <common-text.version>1.9</common-text.version>
@@ -50,6 +51,11 @@
     <git-commit-id.version>4.9.9</git-commit-id.version>
     <docker-maven-plugin.version>0.37.0</docker-maven-plugin.version>
     <error-prone.version>2.2.0</error-prone.version>
+    <jib.maven-plugin-version>3.2.1</jib.maven-plugin-version>
+
+    <!-- container -->
+    <elastic-apm-agent.lib>/app/libs/ext</elastic-apm-agent.lib>
+    <exec.mainClass>tld.yggdrasill.services.agm.AGMApplication</exec.mainClass>
 
     <!-- GPG -->
 <!--    <gpg.keyname>2AC91B9523D4A0CF</gpg.keyname>-->
@@ -514,7 +520,7 @@
                   <groupId>co.elastic.apm</groupId>
                   <artifactId>elastic-apm-agent</artifactId>
                   <version>${elastic-apm-agent.version}</version>
-                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
                   <destFileName>elastic-apm-agent.jar</destFileName>
                 </artifactItem>
               </artifactItems>
@@ -523,47 +529,54 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin.version}</version>
-        <extensions>true</extensions>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>${jib.maven-plugin-version}</version>
         <configuration>
-          <verbose>true</verbose>
-          <images>
-            <image>
-              <alias>${project.artifactId}</alias>
-              <name>yggdrasill.tld/${project.artifactId}</name>
-              <build>
-                <contextDir>${project.basedir}/src/main/docker</contextDir>
-                <filter>@</filter>
-                <assembly>
-                  <inline>
-                    <files>
-                      <file>
-                        <source>${project.build.directory}/${project.artifactId}-${project.version}-dist.${project.packaging}</source>
-                        <outputDirectory>app</outputDirectory>
-                        <destName>app.jar</destName>
-                      </file>
-                      <file>
-                        <source>${project.build.directory}/lib/elastic-apm-agent.jar</source>
-                        <outputDirectory>app</outputDirectory>
-                      </file>
-                      <file>
-                        <source>${project.basedir}/src/main/docker/elasticapm.properties</source>
-                        <outputDirectory>app</outputDirectory>
-                        <filtered>true</filtered>
-                      </file>
-                      <file>
-                        <source>${project.basedir}/src/main/docker/entrypoint.sh</source>
-                        <outputDirectory/>
-                        <filtered>true</filtered>
-                      </file>
-                    </files>
-                  </inline>
-                </assembly>
-              </build>
-            </image>
-          </images>
+          <from>
+            <image>azul/zulu-openjdk-alpine:17@sha256:c310f0e52d6c7880bc62b5d7971e56c33bb5f9b4d2a370a09661d627cbf0402f</image>
+            <platforms>
+              <platform>
+                <architecture>amd64</architecture>
+                <os>linux</os>
+              </platform>
+              <platform>
+                <architecture>arm64</architecture>
+                <os>linux</os>
+              </platform>
+            </platforms>
+          </from>
+          <to>
+            <image>yggdrasill.tld/${project.artifactId}:latest</image>
+            <tags>
+              <tag>${project.version}</tag>
+              <tag>latest</tag>
+            </tags>
+          </to>
+          <container>
+            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+            <mainClass>${exec.mainClass}</mainClass>
+            <jvmFlags>
+              <jvmFlag>-javaagent:${elastic-apm-agent.lib}/elastic-apm-agent.jar</jvmFlag>
+              <jvmFlag>-Delastic.apm.service_name=${project.name}</jvmFlag>
+              <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
+            </jvmFlags>
+            <labels>
+              <org.opencontainers.image.title>${project.name}</org.opencontainers.image.title>
+              <org.opencontainers.image.description>${project.description}</org.opencontainers.image.description>
+              <org.opencontainers.image.name>${project.artifactId}</org.opencontainers.image.name>
+              <org.opencontainers.image.version>${project.version}</org.opencontainers.image.version>
+            </labels>
+          </container>
+          <extraDirectories>
+            <paths>
+              <path>src/main/jib</path>
+              <path>
+                <from>${project.build.directory}/libs</from>
+                <into>${elastic-apm-agent.lib}</into>
+              </path>
+            </paths>
+          </extraDirectories>
         </configuration>
         <executions>
           <execution>
@@ -571,13 +584,6 @@
             <phase>package</phase>
             <goals>
               <goal>build</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>push-image</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>push</goal>
             </goals>
           </execution>
         </executions>
