@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mod1-pcm-service
+rules:
+- apiGroups: ["", "extensions", "apps"]
+  resources:  ["configmaps", "pods", "services", "endpoints", "secrets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mod1-pcm-service
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mod1-pcm-service
+subjects:
+- kind: ServiceAccount
+  name: default

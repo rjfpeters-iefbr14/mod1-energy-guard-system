@@ -1,4 +1,4 @@
-info.app.name: power-capacity-manager
+info.app.name: mod1-pcm-service
 ---
 spring:
   application:

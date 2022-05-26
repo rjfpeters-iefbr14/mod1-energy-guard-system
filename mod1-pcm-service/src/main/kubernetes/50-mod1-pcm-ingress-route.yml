@@ -1,0 +1,29 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ecms-pcm-stripprefix
+  labels:
+    app.kubernetes.io/name: contingency-guard-system
+spec:
+  stripPrefix:
+    prefixes:
+      - /pcm
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mod1-pcm-service
+  labels:
+    app.kubernetes.io/name: contingency-guard-system
+spec:
+  entryPoints:
+    - http
+  routes:
+    - kind: Rule
+      match: Host(`ecms.apps.yggdrasill.tld`) && PathPrefix(`/pcm`)
+      middlewares:
+        - name: ecms-pcm-stripprefix
+      services:
+        - name: mod-kafka-service
+          port: 8092
