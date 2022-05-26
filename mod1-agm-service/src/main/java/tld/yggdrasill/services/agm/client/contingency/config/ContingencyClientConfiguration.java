@@ -8,21 +8,18 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
-public class FeignClientConfiguration {
+public class ContingencyClientConfiguration {
   private static final String CONTINGENCY_CLIENT_ID = "contingency-service";
 
   private final String DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE = "application/vnd.contingency.v1+json";
 
   @Bean
-  feign.Logger.Level feignLoggerLevel() { return feign.Logger.Level.FULL;  }
-
-//  @Bean
-//  public ErrorDecoder errorDecoder() {
-//    return new ContingencyErrorDecoder();
-//  }
+  public ErrorDecoder contingencyErrorDecoder() {
+    return new ContingencyErrorDecoder();
+  }
 
   @Bean
-  public RequestInterceptor requestInterceptor() {
+  public RequestInterceptor contingencyRequestInterceptor() {
     return requestTemplate -> {
       requestTemplate.header("Content-Type", "application/json");
       requestTemplate.header("Accept", DEFAULT_APPLICATION_JSON_CONTINGENCY_VALUE);

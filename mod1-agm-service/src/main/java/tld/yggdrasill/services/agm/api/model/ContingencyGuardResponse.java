@@ -15,5 +15,4 @@ public class ContingencyGuardResponse implements Serializable {
 
   private String camundaDeploymentId;
   private String camundaProcessDefinitionId;
-  private String bpmnProcessDefinitionId;
 }

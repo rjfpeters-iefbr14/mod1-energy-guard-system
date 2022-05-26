@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 @SpringBootApplication
 @EnableKafka
-@EnableProcessApplication
+//@EnableProcessApplication
 @Slf4j
 @EnableDiscoveryClient
 @EnableFeignClients

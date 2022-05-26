@@ -3,19 +3,15 @@ package tld.yggdrasill.services.agm.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.MismatchingMessageCorrelationException;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import tld.yggdrasill.services.agm.core.model.ActivityDecisionMap;
-import tld.yggdrasill.services.agm.core.model.SafetyGuardEventState;
-import tld.yggdrasill.services.agm.core.service.ProcessSafetyGuardService;
+import tld.yggdrasill.services.agm.core.service.ProcessGuardService;
 import tld.yggdrasill.services.cgs.model.Contingency;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
-import tld.yggdrasill.services.cgs.model.Payload;
 
 import java.util.List;
 
@@ -25,12 +21,12 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @Service
 public class GuardEventListener {
 
-  private final ProcessSafetyGuardService safetyGuardService;
+  private final ProcessGuardService safetyGuardService;
 
   private final ProcessEngine camunda;
 
   @Autowired
-  public GuardEventListener(ProcessSafetyGuardService safetyGuardService,
+  public GuardEventListener(ProcessGuardService safetyGuardService,
     ProcessEngine camunda) {
     this.safetyGuardService = safetyGuardService;
     this.camunda = camunda;

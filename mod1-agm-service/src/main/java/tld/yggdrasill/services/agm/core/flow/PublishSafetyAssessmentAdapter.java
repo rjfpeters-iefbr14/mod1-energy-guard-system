@@ -13,6 +13,7 @@ import tld.yggdrasill.services.agm.client.contingency.model.ContingencyResponse;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 
 import javax.inject.Named;
+import java.time.Instant;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -56,7 +57,7 @@ public class PublishSafetyAssessmentAdapter implements JavaDelegate {
         contingencyId), kv("contingencyName", contingencyName), kv("businessKey", businessKey));
 
       GridServiceEvent event = GridServiceEventBuilder
-        .buildEvent(producerId, contingencyId, contingencyName, businessKey);
+        .buildEvent(UUID.randomUUID(), Instant.now(), producerId, contingencyId, contingencyName, businessKey);
       kafkaProducer.send(event);
     } catch (Exception e) {
       log.error("ERROR_SAFETY_ASSESSMENT {} {}",kv("contingencyName", contingencyName),e.getMessage());

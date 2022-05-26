@@ -54,7 +54,7 @@ public class AGMController {
 
       switch (processDefinition.getProductGroup()) {
         case "D" -> processDefinition.setSpecificationFileName(
-          AGMApplicationConstants.CONTINGENCY_VERIFY_EVENT_BPMN);
+          AGMApplicationConstants.CONTINGENCY_VERIFY_GUARD_EVENT_BPMN);
         case "C" -> processDefinition.setSpecificationFileName(
           AGMApplicationConstants.CONTINGENCY_SAFETY_GUARD_EVENT_BPMN);
         default -> throw new BadProcessDefinitionRequest("unknown productGroup");
@@ -78,7 +78,6 @@ public class AGMController {
     }
 
     ContingencyGuardResponse response = ContingencyGuardResponse.builder()
-      .bpmnProcessDefinitionId(processDefinition.getCamundaProcessDefinitionId())
       .camundaDeploymentId(processDefinition.getCamundaDeploymentId())
       .camundaProcessDefinitionId(processDefinition.getCamundaProcessDefinitionId())
       .build();

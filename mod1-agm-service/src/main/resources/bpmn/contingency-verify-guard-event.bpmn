@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_14f4sy8" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="VerificationProcess" name="safe guard for &#39;${contingencyName}&#39;" isExecutable="true">
-    <bpmn:sendTask id="SendTaskStartVerification" name="Start Contingency Agreement Verification" camunda:delegateExpression="#{publishAgreementVerifier}">
+    <bpmn:sendTask id="SendTask_StartContingency" name="Start Contingency Agreement Verification" camunda:delegateExpression="#{publishAgreementVerifier}">
       <bpmn:incoming>Flow_0icys0w</bpmn:incoming>
       <bpmn:outgoing>Flow_0ceiri2</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:boundaryEvent id="Event_18cxd9r" attachedToRef="SendTaskStartVerification">
-      <bpmn:outgoing>Flow_05eb92f</bpmn:outgoing>
-      <bpmn:errorEventDefinition id="ErrorEventDefinition_0gxssms" errorRef="Error_00xlpby" camunda:errorCodeVariable="code_variable" />
-    </bpmn:boundaryEvent>
-    <bpmn:startEvent id="Event_0xly3yw" name="Every 10m">
+    <bpmn:startEvent id="StartEvent_Contingency" name="Every 10m">
       <bpmn:outgoing>Flow_0icys0w</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0ptly3y">
         <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT10M</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0icys0w" sourceRef="Event_0xly3yw" targetRef="SendTaskStartVerification" />
+    <bpmn:sequenceFlow id="Flow_0icys0w" sourceRef="StartEvent_Contingency" targetRef="SendTask_StartContingency" />
     <bpmn:endEvent id="Event_1peuug2" name="Start  Verification Failed">
       <bpmn:incoming>Flow_05eb92f</bpmn:incoming>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_1p0pg61" errorRef="Error_1ooc6x4" />
@@ -25,90 +21,90 @@
       <bpmn:incoming>Flow_0ceiri2</bpmn:incoming>
       <bpmn:outgoing>Flow_1tos1jg</bpmn:outgoing>
     </bpmn:receiveTask>
-    <bpmn:boundaryEvent id="Event_1r38il9" attachedToRef="ReceiveTaskWaitForVerification">
-      <bpmn:compensateEventDefinition id="CompensateEventDefinition_1m7gduv" />
-    </bpmn:boundaryEvent>
     <bpmn:serviceTask id="Activity_1dfdmxa" name="Verification Timed Out" isForCompensation="true" camunda:expression="#{loggerDelegate}" />
-    <bpmn:endEvent id="EndEvent_VerifyCompleted" name="Verification Process Complete">
+    <bpmn:endEvent id="EndEvent_VerifyPerformed" name="VerificationPerformed">
       <bpmn:incoming>Flow_1tos1jg</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0ceiri2" sourceRef="SendTaskStartVerification" targetRef="ReceiveTaskWaitForVerification" />
-    <bpmn:sequenceFlow id="Flow_1tos1jg" sourceRef="ReceiveTaskWaitForVerification" targetRef="EndEvent_VerifyCompleted" />
+    <bpmn:sequenceFlow id="Flow_0ceiri2" sourceRef="SendTask_StartContingency" targetRef="ReceiveTaskWaitForVerification" />
+    <bpmn:sequenceFlow id="Flow_1tos1jg" sourceRef="ReceiveTaskWaitForVerification" targetRef="EndEvent_VerifyPerformed" />
+    <bpmn:boundaryEvent id="Event_18cxd9r" attachedToRef="SendTask_StartContingency">
+      <bpmn:outgoing>Flow_05eb92f</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1x6q1ti" errorRef="Error_00xlpby" camunda:errorCodeVariable="code_variable" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Event_1r38il9" attachedToRef="ReceiveTaskWaitForVerification">
+      <bpmn:compensateEventDefinition id="CompensateEventDefinition_004icc7" />
+    </bpmn:boundaryEvent>
     <bpmn:group id="Group_1igipgv" categoryValueRef="CategoryValue_12jfl3l" />
-    <bpmn:association id="Association_0gbulva" sourceRef="Event_1r38il9" targetRef="Activity_1dfdmxa" />
+    <bpmn:association id="Association_1latro8" sourceRef="Event_1r38il9" targetRef="Activity_1dfdmxa" />
   </bpmn:process>
   <bpmn:error id="Error_00xlpby" name="Error_Verification" errorCode="errorCode" />
   <bpmn:category id="Category_0gix9py">
-    <bpmn:categoryValue id="CategoryValue_12jfl3l" value="solution verification" />
-  </bpmn:category>
-  <bpmn:category id="Category_0xv5lgn">
-    <bpmn:categoryValue id="CategoryValue_11gqrtc" value="solution verification" />
+    <bpmn:categoryValue id="CategoryValue_12jfl3l" value="customer solution verification" />
   </bpmn:category>
   <bpmn:error id="Error_1ooc6x4" name="Error_Verification" errorCode="errorCode" />
   <bpmn:message id="Message_0o2c415" name="WaitForVerification" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="VerificationProcess">
       <bpmndi:BPMNEdge id="Flow_1tos1jg_di" bpmnElement="Flow_1tos1jg">
-        <di:waypoint x="710" y="240" />
-        <di:waypoint x="892" y="240" />
+        <di:waypoint x="610" y="240" />
+        <di:waypoint x="792" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ceiri2_di" bpmnElement="Flow_0ceiri2">
+        <di:waypoint x="410" y="240" />
         <di:waypoint x="510" y="240" />
-        <di:waypoint x="610" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_05eb92f_di" bpmnElement="Flow_05eb92f">
-        <di:waypoint x="440" y="298" />
-        <di:waypoint x="440" y="470" />
-        <di:waypoint x="502" y="470" />
+        <di:waypoint x="340" y="298" />
+        <di:waypoint x="340" y="470" />
+        <di:waypoint x="402" y="470" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0icys0w_di" bpmnElement="Flow_0icys0w">
         <di:waypoint x="198" y="240" />
-        <di:waypoint x="410" y="240" />
+        <di:waypoint x="310" y="240" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_1mt1g2l_di" bpmnElement="SendTaskStartVerification">
-        <dc:Bounds x="410" y="200" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1mt1g2l_di" bpmnElement="SendTask_StartContingency">
+        <dc:Bounds x="310" y="200" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0xly3yw_di" bpmnElement="Event_0xly3yw">
+      <bpmndi:BPMNShape id="Event_0xly3yw_di" bpmnElement="StartEvent_Contingency" bioc:stroke="#000" bioc:fill="#fff">
         <dc:Bounds x="162" y="222" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="154" y="265" width="53" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1peuug2_di" bpmnElement="Event_1peuug2" bioc:stroke="#000" bioc:fill="#fff">
-        <dc:Bounds x="502" y="452" width="36" height="36" />
+        <dc:Bounds x="402" y="452" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="482" y="495" width="87" height="27" />
+          <dc:Bounds x="382" y="495" width="87" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ewoj6r_di" bpmnElement="ReceiveTaskWaitForVerification">
-        <dc:Bounds x="610" y="200" width="100" height="80" />
+        <dc:Bounds x="510" y="200" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1dfdmxa_di" bpmnElement="Activity_1dfdmxa">
-        <dc:Bounds x="660" y="390" width="100" height="80" />
+        <dc:Bounds x="560" y="390" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_08hv9ao_di" bpmnElement="EndEvent_VerifyCompleted" bioc:stroke="#000" bioc:fill="#fff">
-        <dc:Bounds x="892" y="222" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_08hv9ao_di" bpmnElement="EndEvent_VerifyPerformed" bioc:stroke="#000" bioc:fill="#fff">
+        <dc:Bounds x="792" y="222" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="866" y="185" width="90" height="27" />
+          <dc:Bounds x="771" y="185" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Group_1igipgv_di" bpmnElement="Group_1igipgv" bioc:stroke="#000" bioc:fill="#fff">
-        <dc:Bounds x="340" y="125" width="460" height="430" />
+        <dc:Bounds x="240" y="125" width="460" height="430" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="544" y="132" width="53" height="27" />
+          <dc:Bounds x="428" y="132" width="87" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1r38il9_di" bpmnElement="Event_1r38il9">
-        <dc:Bounds x="622" y="262" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_0qk6qr3_di" bpmnElement="Event_1r38il9">
+        <dc:Bounds x="522" y="262" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_18cxd9r_di" bpmnElement="Event_18cxd9r">
-        <dc:Bounds x="422" y="262" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_0wkkj9i_di" bpmnElement="Event_18cxd9r">
+        <dc:Bounds x="322" y="262" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_0gbulva_di" bpmnElement="Association_0gbulva">
-        <di:waypoint x="640" y="298" />
-        <di:waypoint x="640" y="344" />
-        <di:waypoint x="710" y="344" />
-        <di:waypoint x="710" y="390" />
+      <bpmndi:BPMNEdge id="Association_1latro8_di" bpmnElement="Association_1latro8">
+        <di:waypoint x="540" y="298" />
+        <di:waypoint x="540" y="430" />
+        <di:waypoint x="560" y="430" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

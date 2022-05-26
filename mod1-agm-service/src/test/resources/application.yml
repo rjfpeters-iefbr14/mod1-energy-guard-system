@@ -26,6 +26,8 @@ app:
   client:
     contingency-service:
       url: "http://localhost:8094"
+    safety-dossier-service:
+      url: "http://localhost:8093"
 
 camunda.bpm:
 #  generic-properties.properties:

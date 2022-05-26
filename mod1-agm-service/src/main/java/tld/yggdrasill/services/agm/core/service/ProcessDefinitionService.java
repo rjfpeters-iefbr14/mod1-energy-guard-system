@@ -8,6 +8,9 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.SendTask;
+import org.camunda.bpm.model.bpmn.instance.StartEvent;
+import org.camunda.bpm.model.bpmn.instance.TimeCycle;
+import org.camunda.bpm.model.bpmn.instance.TimerEventDefinition;
 import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -25,8 +28,8 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 public class ProcessDefinitionService {
 
   //-- these are identifiers in the bpmn-file -> safety-guard-event.
-  public static final String START_FLOW_ACTIVITY = "Activity_1mk85k9";
-  public static final String TIMER_EVENT_ID = "TimerEventDefinition_0mq4cty";
+  public static final String START_FLOW_ACTIVITY = "SendTask_StartContingency";
+  public static final String TIMER_EVENT_ID = "StartEvent_Contingency";
 
   private final RepositoryService repositoryService;
 
@@ -69,16 +72,23 @@ public class ProcessDefinitionService {
       processDefinition.setDescription(process.getDocumentations().iterator().next().getRawTextContent());
     }
 
+    //-- add contingency variables
+    log.info("Add contingency variables: {}, {}",
+      kv("contingencyId",processDefinition.getContingencyId()),
+      kv("contingencyName",processDefinition.getContingencyName()));
     SendTask sendTask = (SendTask) modelInstance.getModelElementById(START_FLOW_ACTIVITY);
     sendTask.builder()
       .camundaInputParameter("contingencyId", processDefinition.getContingencyId())
       .camundaInputParameter("contingencyName", processDefinition.getContingencyName());
 
-//    TimerEventDefinition timerEventDefinition = (TimerEventDefinition) modelInstance.getModelElementById(TIMER_EVENT_ID);
-//    TimeCycle timeCycle = (TimeCycle) modelInstance.newInstance(TimeCycle.class);
-//    String timerCycle = "R/PT3M";
-//    timeCycle.setTextContent(timerCycle);
-//    timerEventDefinition.setTimeCycle(timeCycle);
+    //-- modify the timer definition
+    StartEvent startEvent = (StartEvent) modelInstance.getModelElementById(TIMER_EVENT_ID);
+    TimerEventDefinition timerEventDefinition = (TimerEventDefinition) startEvent.getEventDefinitions().iterator().next();
+    log.info("Modify timer event definition with id: {}",timerEventDefinition.getId());
+    TimeCycle timeCycle = (TimeCycle) modelInstance.newInstance(TimeCycle.class);
+    timeCycle.setTextContent(processDefinition.getTimerCycle());
+    timerEventDefinition.setTimeCycle(timeCycle);
+    startEvent.setName("Every: %s".formatted(processDefinition.getTimerCycle()));
 
     Bpmn.validateModel(modelInstance);
 

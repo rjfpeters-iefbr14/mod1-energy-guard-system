@@ -7,19 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
-import org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.camunda.bpm.scenario.run.ProcessRunner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,7 +27,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.task;
 import static org.mockito.Mockito.*;
 
 @Slf4j
@@ -45,15 +40,15 @@ import static org.mockito.Mockito.*;
     "spring.datasource.generate-unique-name=true",
     //
     "camunda.bpm.job-execution.enabled=false", //
-    "camunda.bpm.auto-deployment-enabled=false"
+    "camunda.bpm.auto-deployment-enabled=true"
   })
-@Deployment(resources = {"bpmn//contingency-verify-event.bpmn"})
+@Deployment(resources = {"bpmn//contingency-verify-guard-event.bpmn"})
 //@ExtendWith(MockitoExtension.class)
 public class ContingencyAgreementVerificationProcessTest {
 
   public static final String PROCESS_KEY = "VerificationProcess";
-  public static final String START_EVENT_VERIFY = "StartEvent_Verification";
-  public static final String END_EVENT_VERIFY_COMPLETED = "EndEvent_VerifyCompleted";
+  public static final String START_EVENT_VERIFY = "StartEvent_Contingency";
+  public static final String END_EVENT_VERIFY_COMPLETED = "EndEvent_VerifyPerformed";
 
   @RegisterExtension
   static WireMockExtension CONTINGENCY_SERVICE = WireMockExtension.newInstance()

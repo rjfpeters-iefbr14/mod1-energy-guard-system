@@ -3,7 +3,7 @@ package tld.yggdrasill.services.agm.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tld.yggdrasill.services.agm.core.model.ContingencyCaseType;
-import tld.yggdrasill.services.agm.core.model.SafetyGuardEventState;
+import tld.yggdrasill.services.agm.core.model.GuardEventState;
 import tld.yggdrasill.services.cgs.model.Contingency;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 import tld.yggdrasill.services.cgs.model.MetaInf;
@@ -25,9 +25,9 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @Component
 public class GridServiceEventBuilder {
 
-  public static GridServiceEvent buildEvent(String producerId, String contingencyId, String contingencyName, String businessKey) {
-    UUID uuid = UUID.randomUUID();
-    Instant createdAt = Instant.now();
+  public static GridServiceEvent buildEvent(
+    UUID uuid, Instant createdAt, String producerId,
+    String contingencyId, String contingencyName, String businessKey) {
     GridServiceEvent event = new GridServiceEvent();
 
     event.setMessageId(uuid.toString());
@@ -55,7 +55,7 @@ public class GridServiceEventBuilder {
       .withmRID(businessKey)
       .withName("guard location")
       .withContingency(contingency)
-      .withState(SafetyGuardEventState.SAFETY_ASSESSMENT.getState())
+      .withState(GuardEventState.SAFETY_ASSESSMENT.getState())
       .withMetaInf(new MetaInf()
         .withStart(new Start()
           .withStarter(producerId)

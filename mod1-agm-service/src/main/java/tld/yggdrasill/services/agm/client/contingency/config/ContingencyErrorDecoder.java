@@ -21,7 +21,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 
-@Component
+//@Component
 public class ContingencyErrorDecoder implements ErrorDecoder {
   ObjectMapper objectMapper = new ObjectMapper().registerModule(new ProblemModule());
 

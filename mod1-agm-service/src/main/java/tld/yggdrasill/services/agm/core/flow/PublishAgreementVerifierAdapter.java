@@ -10,9 +10,11 @@ import tld.yggdrasill.services.agm.client.GridServiceEventBuilder;
 import tld.yggdrasill.services.agm.client.GridServiceProducerClient;
 import tld.yggdrasill.services.agm.client.contingency.ContingencyClient;
 import tld.yggdrasill.services.agm.client.contingency.model.ContingencyResponse;
+import tld.yggdrasill.services.agm.core.model.GuardEventState;
 import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 
 import javax.inject.Named;
+import java.time.Instant;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -56,11 +58,11 @@ public class PublishAgreementVerifierAdapter implements JavaDelegate {
         contingencyId), kv("contingencyName", contingencyName), kv("businessKey", businessKey));
 
       GridServiceEvent event = GridServiceEventBuilder
-        .buildEvent(producerId, contingencyId, contingencyName, businessKey);
-      event.getPayload().setState("contingency-verifier");
+        .buildEvent(UUID.randomUUID(), Instant.now(), producerId, contingencyId, contingencyName, businessKey);
+      event.getPayload().setState(GuardEventState.CONTINGENCY_VERIFIER.getState());
       kafkaProducer.send(event);
     } catch (Exception e) {
-      log.error("ERROR_SAFETY_ASSESSMENT {} {}",kv("contingencyName", contingencyName),e.getMessage());
+      log.error("ERROR_SAFETY_VERIFIER {} {}",kv("contingencyName", contingencyName),e.getMessage());
       execution.setVariable("errorCode {}",kv("contingencyId", contingencyId));
       throw new BpmnError(ERROR_SAFETY_ASSESSMENT);
     }

@@ -29,7 +29,7 @@ import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertT
     "spring.datasource.generate-unique-name=true",
     //
     "camunda.bpm.job-execution.enabled=false", //
-    "camunda.bpm.auto-deployment-enabled=false" //
+    "camunda.bpm.auto-deployment-enabled=true"
   })
 public class LoadAndVerifySampleProcessModelsTest {
 

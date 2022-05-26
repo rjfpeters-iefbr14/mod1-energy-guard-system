@@ -4,18 +4,18 @@ import java.util.Map;
 
 public class ActivityDecisionMap {
 
-  private static final Map<SafetyGuardEventState, String> ACTIVITY_DECISION_MAP =
+  private static final Map<GuardEventState, String> ACTIVITY_DECISION_MAP =
     Map.of(
-      SafetyGuardEventState.CONGESTION_DETECTED, "CongestionDetected",
-      SafetyGuardEventState.NO_CONGESTION_DETECTED, "NoCongestionDetected",
-      SafetyGuardEventState.CONGESTION_RESOLVED, "CongestionResolved",
-      SafetyGuardEventState.SOLUTION_DISCOVERY, "SolutionDiscovery",
-      SafetyGuardEventState.SOLUTION_INQUIRE_MARKET, "InquireMarket",
-      SafetyGuardEventState.SOLUTION_ACTIVATION, "SolutionActivation"
+      GuardEventState.CONGESTION_DETECTED, "CongestionDetected",
+      GuardEventState.NO_CONGESTION_DETECTED, "NoCongestionDetected",
+      GuardEventState.CONGESTION_RESOLVED, "CongestionResolved",
+      GuardEventState.SOLUTION_DISCOVERY, "SolutionDiscovery",
+      GuardEventState.SOLUTION_INQUIRE_MARKET, "InquireMarket",
+      GuardEventState.SOLUTION_ACTIVATION, "SolutionActivation"
     );
 
   public static String getActivityDecision(String eventState) {
-    SafetyGuardEventState state = SafetyGuardEventState.valueOf(
+    GuardEventState state = GuardEventState.valueOf(
       eventState.replace('-','_').toUpperCase());
     return ACTIVITY_DECISION_MAP.get(state);
   }

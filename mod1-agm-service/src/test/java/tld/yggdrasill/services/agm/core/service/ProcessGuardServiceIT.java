@@ -3,7 +3,6 @@ package tld.yggdrasill.services.agm.core.service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsResult;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
     "embedded.kafka.topicsToCreate=embedded-test-topic",
   }
 )
-public class ProcessSafetyGuardServiceIT {
+public class ProcessGuardServiceIT {
 
   @Autowired
   protected AdminClient adminClient;
