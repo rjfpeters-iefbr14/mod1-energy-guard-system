@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: mod1-cav-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false
+
+embedded:
+  kafka:
+    enabled: true
+#    dockerImageVersion: '7.0.0'

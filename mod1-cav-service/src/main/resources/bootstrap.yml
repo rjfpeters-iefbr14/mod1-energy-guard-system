@@ -1,0 +1,12 @@
+info.app.name: contingency-agreement-verifier
+---
+spring:
+  application:
+    name: mod1-cav-service
+
+  cloud:
+    config:
+      enabled: false
+
+    kubernetes:
+      enabled: false

@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mod-kafka-service
+  name: mod1-cav-service
   labels:
-    app.kubernetes.io/name: mod-kafka-service
+    app.kubernetes.io/name: mod1-cav-service
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port:   '9090'
@@ -13,33 +13,34 @@ spec:
   type: ClusterIP
   ports:
     - name: api
-      port: 8091
+      port: 8095
     - name: healthz
       port: 9090
   selector:
-    app.kubernetes.io/name: mod-kafka-service
+    app.kubernetes.io/name: mod1-cav-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mod-kafka-service
+  name: mod1-cav-service
   labels:
-    app.kubernetes.io/name: mod-kafka-service
+    app.kubernetes.io/name: mod1-cav-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: mod-kafka-service
+      app.kubernetes.io/name: mod1-cav-service
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mod-kafka-service
+        app.elastic.logs.json: enable
+        app.kubernetes.io/name: mod1-cav-service
         blinktShow: 'true'
         blinktColor: "FFFF00"
     spec:
       containers:
-        - name: mod-kafka-service
-          image: yggdrasill.tld/mod-kafka-system
+        - name: mod1-cav-service
+          image: yggdrasill.tld/mod1-cav-service
           imagePullPolicy: Always
           env:
 #             - name: TRUSTSTORE_JKS
@@ -59,9 +60,11 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://apm-server.default.svc:8200"
           ports:
             - name: api
-              containerPort: 8091
+              containerPort: 8095
             - name: healthz
               containerPort: 9090
 #          readinessProbe:
@@ -123,8 +126,8 @@ spec:
 #          volumeMounts:
 #            - name: keystore-volume
 #              mountPath: /var/run/secrets/java.io/keystores
-#      restartPolicy: Always
-#      terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
 #      volumes:
 #        - name: keystore-volume
 #          emptyDir: {}

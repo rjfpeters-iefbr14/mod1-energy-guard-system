@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    config:
+      enabled: true
+
+    kubernetes:
+      enabled: true
+
+#    vault:
+#      uri: https://vault.default.svc:8200
+#      token: ${VAULT_TOKEN}

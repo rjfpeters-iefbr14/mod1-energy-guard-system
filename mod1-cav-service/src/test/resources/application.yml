@@ -1,0 +1,25 @@
+info.app.name: @project.name@
+---
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  kafka:
+    bootstrap-servers: "${embedded.kafka.brokerList}"
+    consumer:
+      group-id: cav-group
+
+app:
+  kafka:
+    producer:
+      topic: embedded-test-topic
+    consumer:
+      topic: embedded-test-topic
+
+  client:
+    contingency-service:
+      url: "http://localhost:8094"
+
+logging:
+  level:
+    root: INFO
