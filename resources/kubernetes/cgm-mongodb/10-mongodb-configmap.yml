@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mod1-gcm-mongodb
+  labels:
+    app.kubernetes.io/name: mod1-gcm-mongodb
+data:
+  MONGO_INITDB_DATABASE: gcm-service

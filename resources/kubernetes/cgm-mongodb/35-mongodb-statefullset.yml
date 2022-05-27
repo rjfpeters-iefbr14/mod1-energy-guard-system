@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mod1-gcm-mongodb
+  labels:
+    app.kubernetes.io/name: mod1-gcm-mongodb
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mod1-gcm-mongodb
+  serviceName: mod1-gcm-mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mod1-gcm-mongodb
+        blinktShow: 'true'
+        blinktColor: "009600"
+    spec:
+      containers:
+        - name: mod1-gcm-mongodb
+          image: library/mongo:4-bionic
+          ports:
+            - containerPort: 27017
+          envFrom:
+            - configMapRef:
+                name: mod1-gcm-mongodb
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mod1-gcm-mongodb-secret
+                  key: database-user
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mod1-gcm-mongodb-secret
+                  key: database-password
+          volumeMounts:
+            - name: mongo-storage
+              mountPath: /data/db
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-storage
+      spec:
+        storageClassName: "managed-nfs-storage"
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
