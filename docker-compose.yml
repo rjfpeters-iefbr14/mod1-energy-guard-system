@@ -36,9 +36,9 @@ services:
     environment:
       POSTGRES_USER: username # The PostgreSQL user (useful to connect to the database)
       POSTGRES_PASSWORD: password # The PostgreSQL password (useful to connect to the database)
-      POSTGRES_DB: default_database # The PostgreSQL default database (automatically created at first launch)
+      POSTGRES_DB: camunda # The PostgreSQL default database (automatically created at first launch)
     healthcheck:
-      test: [ "CMD", "pg_isready", "-d", "default_database", "-U", "username"]
+      test: [ "CMD", "pg_isready", "-d", "camunda", "-U", "username"]
       start_period: 40s
       interval: 30s
       timeout: 3s
@@ -306,6 +306,7 @@ services:
       - JAVA_OPTS=-Dspring.profiles.active=docker
     depends_on:
       - cfg-service
+      - mongodb
       - kafka
       - filebeat
       - apm-server
@@ -377,5 +378,27 @@ services:
       - filebeat
       - apm-server
       - mongodb
+
+  cav-service:
+    image: yggdrasill.tld/mod1-cav-service
+    container_name: cav-service
+    hostname: cav-service-host
+    labels:
+      filebeat_enable: true
+    mem_limit: 1024m
+    networks:
+      default:
+        aliases:
+          - cva-service.docker.svc
+    ports:
+      - 18095:8095
+      - 19095:9090
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=docker
+    depends_on:
+      - cfg-service
+      - kafka
+      - filebeat
+      - apm-server
 
 networks: {stack: {}}
