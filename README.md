@@ -51,10 +51,10 @@ Additional proof points
 - design / build for the component operational-control-registry  
 - the use of avro-messages instead of json
 - the use of json-ld as payload in REST interface 
-- distributed tracing -> open-telemetry (native elastic-apm-java doesn't have support for mongodb and some kafka usage)
+- distributed tracing -> open-tracing (native elastic-apm-java doesn't have support for mongodb and some kafka usage)
 - sample kibana dash-boards 
 - use oauth2 client flow to secure endpoints
 - caching in grid-contingency-manager
-- permutation testen
-- chaos-engineering testen
-- performance testen met gatling
+- permutation testing
+- chaos-engineering testing
+- performance testing with gatling
