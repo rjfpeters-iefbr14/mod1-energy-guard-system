@@ -1,0 +1,35 @@
+= Build with Docker
+
+openjdk:17-jdk-slim-buster
+os/arch
+
+* linux/amd64       208.21 MB
+* linux/arm64/v8    205.59 MB
+
+
+azul/zulu-openjdk-alpine:17
+
+* linux/amd64       141.27 MB
+* linux/arm64/v8    132.21 MB
+
+
+
+== build multi arch containers
+
+=== buildx
+
+Docker CLI plugin for extended build capabilities with BuildKit
+
+> `buildx` comes bundled with Docker CE starting with v19.03, but requires experimental mode to be enabled on the Docker CLI.
+
+> To enable it, `"experimental": "enabled"` can be added to the CLI configuration file `~/.docker/config.json` .
+
+
+
+
+== execute
+
+[source,shell]
+docker buildx build --load --platform linux/arm64/v8 -t <> .
+
+

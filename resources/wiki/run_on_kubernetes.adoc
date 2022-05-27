@@ -5,3 +5,13 @@
 = Run on Kubernetes
 
 Some kubernetes configuration files are available, these are not verified. But can be uses to run on minicube.
+
+|===
+|Item |Url |Remarks
+| agm-service   | 8093  | 
+| cav-service   | 8095  |
+| dsa-service   | 8091  |
+| gcm-service   | 8094  |
+| pcm-service   | 8092  |
+
+|===
