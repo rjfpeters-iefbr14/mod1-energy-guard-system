@@ -79,7 +79,7 @@ public class DSAController {
   }
 
   @GetMapping(value = "/contingencies/{contingencyId}/proxy", produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<?> getContingency(@PathVariable("contigencyId") @isValidUUID String contingencyId) {
+  public ResponseEntity<?> getContingency(@PathVariable("contingencyId") @isValidUUID String contingencyId) {
     log.info("Contingency: {}", kv("contingencyId",contingencyId));
 
     ContingencyResponse contingency = contingencyClient.getContingencyById(contingencyId);

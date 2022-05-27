@@ -14,7 +14,7 @@ import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 public class CleanArchitectureTest {
 
   @Test
-  public void testPackages() {
+  public void architecture_should_comply_with_guidelines() {
     JavaClasses importedClasses = new ClassFileImporter()
      .importPackages(DSAApplication.class.getPackage().toString());
 

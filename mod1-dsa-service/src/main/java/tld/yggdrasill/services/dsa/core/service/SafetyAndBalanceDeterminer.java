@@ -6,6 +6,7 @@ import tld.yggdrasill.services.cgs.model.GridServiceEvent;
 import tld.yggdrasill.services.dsa.core.model.SafetyDossier;
 import tld.yggdrasill.services.dsa.core.process.SafetyGuardEventState;
 
+import java.util.Random;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -31,23 +32,26 @@ public class SafetyAndBalanceDeterminer {
   }
 
 
-  public SafetyGuardEventState execute(GridServiceEvent event){
-
+  public SafetyGuardEventState execute(GridServiceEvent event) {
     //-- sample analyzing this event
-    try{Thread.sleep(4000);}catch(InterruptedException e){
+    try {
+      Thread.sleep(4000);
+    } catch (InterruptedException e) {
       log.warn(e.getMessage());
     }
 
     SafetyGuardEventState state = determineAnalysisResult(event);
-    log.info("Analyzer {}",kv("state",state.getState()));
+    log.info("Analyzer {}", kv("state", state.getState()));
     if (state == SafetyGuardEventState.CONGESTION_DETECTED) {
-      SafetyDossier dossier = SafetyDossier.builder()
-        .mRID(UUID.randomUUID())
-        .contingencyId(UUID.fromString((String) event.getPayload().getContingency().getmRID()))
-        .caseId(UUID.fromString((String) event.getPayload().getmRID())).build();
-      safetyDossierService.createDossier(dossier);
+      int count = new Random().nextInt(5);
+      for (int i = 0; i < count; i++) {
+        SafetyDossier dossier = SafetyDossier.builder()
+          .mRID(UUID.randomUUID())
+          .contingencyId(UUID.fromString((String) event.getPayload().getContingency().getmRID()))
+          .caseId(UUID.fromString((String) event.getPayload().getmRID())).build();
+        safetyDossierService.createDossier(dossier);
+      }
     }
-
     return state;
   }
 }

@@ -1,4 +1,4 @@
-info.app.name: dynamic-safety-analyzer
+info.app.name: dynamic-safety-assessment
 ---
 spring:
   application:

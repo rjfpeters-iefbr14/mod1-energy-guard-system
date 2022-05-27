@@ -12,8 +12,8 @@
   <groupId>tld.yggdrasill.contingency.guard</groupId>
   <artifactId>mod1-dsa-service</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>dynamic-safety-analyzer</name>
-  <description>Sample system :: dynamic safety analyzer (dsa-service)</description>
+  <name>dynamic-safety-assessment</name>
+  <description>Sample system :: dynamic safety assessment (dsa-service)</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,16 +21,14 @@
     <maven.compiler.source>17</maven.compiler.source>
 
     <spring-cloud.version>2020.0.4</spring-cloud.version>
-    <modelmapper.version>2.4.5</modelmapper.version>
+    <modelmapper.version>3.1.0</modelmapper.version>
     <problem-spring-web.version>0.27.0</problem-spring-web.version>
-    <elastic-apm-agent.version>1.28.4</elastic-apm-agent.version>
-    <lockback-ecs-encoder.version>1.3.0</lockback-ecs-encoder.version>
+    <elastic-apm-agent.version>1.30.0</elastic-apm-agent.version>
+    <lockback-ecs-encoder.version>1.3.2</lockback-ecs-encoder.version>
     <logstash-logback-encoder.version>7.0.1</logstash-logback-encoder.version>
+    <opentracing-spring-cloud.version>0.5.9</opentracing-spring-cloud.version>
 
     <lombok.version>1.18.22</lombok.version>
-
-    <chaos-monkey-spring-boot.version>2.5.4</chaos-monkey-spring-boot.version>
-    <archunit.version>0.22.0</archunit.version>
 
     <!-- tests -->
     <junit-jupiter.version>5.8.2</junit-jupiter.version>
@@ -40,13 +38,22 @@
     <chaos-monkey-spring-boot.version>2.5.4</chaos-monkey-spring-boot.version>
     <archunit.version>0.22.0</archunit.version>
 
+
     <!-- plugins -->
     <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
     <maven-spring-boot-plugin.version>2.6.2</maven-spring-boot-plugin.version>
     <git-commit-id.version>4.9.9</git-commit-id.version>
-    <docker-maven-plugin.version>0.37.0</docker-maven-plugin.version>
+    <docker-maven-plugin.version>0.39.0</docker-maven-plugin.version>
+    <jib.maven-plugin-version>3.2.1</jib.maven-plugin-version>
+
+    <spring-cloud-contract.version>2.2.5.RELEASE</spring-cloud-contract.version>
+    <querydsl-mongodb.version>5.0.0</querydsl-mongodb.version>
     <pitest.version>1.6.1</pitest.version>
     <pitest-junit5-plugin.version>0.12</pitest-junit5-plugin.version>
+
+    <!-- container -->
+    <elastic-apm-agent.lib>/app/libs/ext</elastic-apm-agent.lib>
+    <exec.mainClass>tld.yggdrasill.services.dsa.DSAApplication</exec.mainClass>
 
     <!-- GPG -->
 <!--    <gpg.keyname>2AC91B9523D4A0CF</gpg.keyname>-->
@@ -99,6 +106,11 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
     <!-- kubernetes support -->
@@ -298,6 +310,15 @@
           <!--  human-readable part of the version number -->
           <dateFormat>yyyyMMdd-HHmmss</dateFormat>
         </configuration>
+        <executions>
+          <execution>
+            <id>get-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -382,7 +403,7 @@
                   <groupId>co.elastic.apm</groupId>
                   <artifactId>elastic-apm-agent</artifactId>
                   <version>${elastic-apm-agent.version}</version>
-                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                  <outputDirectory>${project.build.directory}/libs</outputDirectory>
                   <destFileName>elastic-apm-agent.jar</destFileName>
                 </artifactItem>
               </artifactItems>
@@ -391,47 +412,57 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin.version}</version>
-        <extensions>true</extensions>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>${jib.maven-plugin-version}</version>
         <configuration>
-          <verbose>true</verbose>
-          <images>
-            <image>
-              <alias>${project.artifactId}</alias>
-              <name>yggdrasill.tld/${project.artifactId}</name>
-              <build>
-                <contextDir>${project.basedir}/src/main/docker</contextDir>
-                <filter>@</filter>
-                <assembly>
-                  <inline>
-                    <files>
-                      <file>
-                        <source>${project.build.directory}/${project.artifactId}-${project.version}-dist.${project.packaging}</source>
-                        <outputDirectory>app</outputDirectory>
-                        <destName>app.jar</destName>
-                      </file>
-                      <file>
-                        <source>${project.build.directory}/lib/elastic-apm-agent.jar</source>
-                        <outputDirectory>app</outputDirectory>
-                      </file>
-                      <file>
-                        <source>${project.basedir}/src/main/docker/elasticapm.properties</source>
-                        <outputDirectory>app</outputDirectory>
-                        <filtered>true</filtered>
-                      </file>
-                      <file>
-                        <source>${project.basedir}/src/main/docker/entrypoint.sh</source>
-                        <outputDirectory/>
-                        <filtered>true</filtered>
-                      </file>
-                    </files>
-                  </inline>
-                </assembly>
-              </build>
-            </image>
-          </images>
+          <from>
+            <image>azul/zulu-openjdk-alpine:17@sha256:c310f0e52d6c7880bc62b5d7971e56c33bb5f9b4d2a370a09661d627cbf0402f</image>
+            <platforms>
+              <platform>
+                <architecture>amd64</architecture>
+                <os>linux</os>
+              </platform>
+              <platform>
+                <architecture>arm64</architecture>
+                <os>linux</os>
+              </platform>
+            </platforms>
+          </from>
+          <to>
+            <image>yggdrasill.tld/${project.artifactId}:latest</image>
+            <tags>
+              <tag>${project.version}</tag>
+              <tag>latest</tag>
+            </tags>
+          </to>
+          <container>
+            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+            <mainClass>${exec.mainClass}</mainClass>
+            <jvmFlags>
+              <jvmFlag>-javaagent:${elastic-apm-agent.lib}/elastic-apm-agent.jar</jvmFlag>
+              <jvmFlag>-Delastic.apm.service_name=${project.name}</jvmFlag>
+              <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
+            </jvmFlags>
+            <labels>
+              <org.opencontainers.image.title>${project.name}</org.opencontainers.image.title>
+              <org.opencontainers.image.description>${project.description}</org.opencontainers.image.description>
+              <org.opencontainers.image.name>${project.artifactId}</org.opencontainers.image.name>
+              <org.opencontainers.image.version>${project.version}</org.opencontainers.image.version>
+              <org.opencontainers.image.created>${maven.build.timestamp}</org.opencontainers.image.created>
+              <!--suppress UnresolvedMavenProperty -->
+              <org.opencontainers.image.revision>${git.commit.id.abbrev}</org.opencontainers.image.revision>
+            </labels>
+          </container>
+          <extraDirectories>
+            <paths>
+              <path>src/main/jib</path>
+              <path>
+                <from>${project.build.directory}/libs</from>
+                <into>${elastic-apm-agent.lib}</into>
+              </path>
+            </paths>
+          </extraDirectories>
         </configuration>
         <executions>
           <execution>
@@ -439,13 +470,6 @@
             <phase>package</phase>
             <goals>
               <goal>build</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>push-image</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>push</goal>
             </goals>
           </execution>
         </executions>

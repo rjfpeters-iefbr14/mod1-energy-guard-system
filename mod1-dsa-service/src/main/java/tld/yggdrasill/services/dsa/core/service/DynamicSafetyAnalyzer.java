@@ -86,7 +86,7 @@ public class DynamicSafetyAnalyzer {
       .withMetaInf(metaInf);
 
     URI location =
-      ServletUriComponentsBuilder.fromPath("http://dsa-service.docker.svc/safety-dossier")
+      ServletUriComponentsBuilder.fromPath("http://dsa-service.docker.svc/safety-dossiers")
         .queryParam("caseId",payload.getmRID()).build().toUri();
     Links links = new Links()
       .withSafetyDossier(new SafetyDossier().withHref(location.toString()));

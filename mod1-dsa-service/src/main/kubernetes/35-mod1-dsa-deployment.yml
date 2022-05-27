@@ -33,6 +33,7 @@ spec:
   template:
     metadata:
       labels:
+        app.elastic.logs.json: enable
         app.kubernetes.io/name: mod1-dsa-service
         blinktShow: 'true'
         blinktColor: "FFFF00"
@@ -59,6 +60,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: ELASTIC_APM_SERVER_URL
+              value: "http://apm-server.default.svc:8200"
           ports:
             - name: api
               containerPort: 8091
@@ -123,8 +126,8 @@ spec:
 #          volumeMounts:
 #            - name: keystore-volume
 #              mountPath: /var/run/secrets/java.io/keystores
-#      restartPolicy: Always
-#      terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
 #      volumes:
 #        - name: keystore-volume
 #          emptyDir: {}

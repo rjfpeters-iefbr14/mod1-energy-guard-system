@@ -1,5 +1,16 @@
 ---
 apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ecms-dsa-stripprefix
+  labels:
+    app.kubernetes.io/name: contingency-guard-system
+spec:
+  stripPrefix:
+    prefixes:
+      - /dsa
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: mod1-dsa-service
@@ -10,9 +21,9 @@ spec:
     - http
   routes:
     - kind: Rule
-      match: Host(`cgs.apps.yggdrasill.tld`) && PathPrefix(`/dsa`)
-#      middlewares:
-#        - name: deo-stripprefix
+      match: Host(`ecms.apps.yggdrasill.tld`) && PathPrefix(`/dsa`)
+      middlewares:
+        - name: ecms-dsa-stripprefix
       services:
         - name: mod1-dsa-service
           port: 8091
