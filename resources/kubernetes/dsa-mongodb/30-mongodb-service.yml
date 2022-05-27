@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mod1-dsa-mongodb
+  labels:
+    app.kubernetes.io/name: mod1-dsa-mongodb
+spec:
+  selector:
+    app.kubernetes.io/name: mod1-dsa-mongodb
+  clusterIP: None
+  ports:
+    - port: 27017
+      protocol: TCP
