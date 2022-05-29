@@ -1,9 +1,5 @@
 package tld.yggdrasill.services.gcm.core.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,5 +54,7 @@ public class Contingency {
   private String camundaDeploymentId;
 
   private String camundaProcessDefinitionId;
+
+  public static class ContingencyBuilder {};
 }
 

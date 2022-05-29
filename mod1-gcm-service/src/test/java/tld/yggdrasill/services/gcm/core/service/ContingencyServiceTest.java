@@ -1,31 +1,35 @@
 package tld.yggdrasill.services.gcm.core.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.MockitoAnnotations;
 import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.core.repository.ContingencyRepository;
 import tld.yggdrasill.services.gcm.helper.ContingencyHelper;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 //@ExtendWith(SpringExtension.class) -> as of spring-boot 2.1 no longer needed
+//@Disabled
 class ContingencyServiceTest {
 
   @Mock private ContingencyRepository contingencyRepository;
 
   @InjectMocks private ContingencyService contingencyService;
 
+  @BeforeEach
+  public void init() {
+    MockitoAnnotations.openMocks(this);
+  }
   @Test
   void getContingencies() {
     final int NUM_CONTINGENCIES = 2;

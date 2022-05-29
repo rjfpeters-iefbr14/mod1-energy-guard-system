@@ -2,132 +2,135 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mod1-gcm
+  name: mod1-gcm-service
   labels:
-    app.kubernetes.io/name: mod1-gcm
+    app.kubernetes.io/name: mod1-gcm-service
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port:   '9090'
     prometheus.io/path:   '/manage/prometheus'
 spec:
+  selector:
+    app.kubernetes.io/name: mod1-gcm-service
   type: ClusterIP
   ports:
     - name: api
-      port: 8090
+      port: 8094
     - name: healthz
       port: 9090
-  selector:
-    app.kubernetes.io/name: mod1-gcm
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mod1-gcm
+  name: mod1-gcm-service
   labels:
-    app.kubernetes.io/name: mod1-gcm
+    app.kubernetes.io/name: mod1-gcm-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: mod1-gcm
+      app.kubernetes.io/name: mod1-gcm-service
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mod1-gcm
+        app.elastic.logs.json: enable
+        app.kubernetes.io/name: mod1-gcm-service
         blinktShow: 'true'
         blinktColor: "FFFF00"
     spec:
       containers:
-        - name: mod1-gcm
-          image: yggdrasill.tld/mod2-mod1-gcm
+        - name: mod1-gcm-service
+          image: yggdrasill.tld/mod1-gcm-service
           imagePullPolicy: Always
           env:
-            - name: TRUSTSTORE_JKS
-              value: /app/keystores/truststore.jks
-            - name: PASSWORD
-              value: 'changeit'
-            - name: SPRING_APPLICATION_JSON
-              value: '{"spring": {"cloud": {"vault": {"ssl": {"trust-store": "file://${TRUSTSTORE_JKS}", "trust-store-password": "${PASSWORD}"}}}}}'
-            - name: VAULT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: vault-tokens
-                  key: VAULT_ROOT_TOKEN
+#            - name: TRUSTSTORE_JKS
+#              value: /app/keystores/truststore.jks
+#            - name: PASSWORD
+#              value: 'changeit'
+#            - name: SPRING_APPLICATION_JSON
+#              value: '{"spring": {"cloud": {"vault": {"ssl": {"trust-store": "file://${TRUSTSTORE_JKS}", "trust-store-password": "${PASSWORD}"}}}}}'
+#            - name: VAULT_TOKEN
+#              valueFrom:
+#                secretKeyRef:
+#                  name: vault-tokens
+#                  key: VAULT_ROOT_TOKEN
             - name: KUBERNETES_TRUST_CERTIFICATES
               value: "true"
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: ELASTIC_APM_SERVER_URL
+              value: "http://apm-server.default.svc:8200"
           ports:
             - name: api
-              containerPort: 8090
+              containerPort: 8094
             - name: healthz
               containerPort: 9090
-          readinessProbe:
-            httpGet:
-              path: /manage/health/readiness
-              port: healthz
-            initialDelaySeconds: 300
-            timeoutSeconds: 10
-            periodSeconds: 3
-            failureThreshold: 5
-          livenessProbe:
-            httpGet:
-              path: /manage/health/liveness
-              port: healthz
-            initialDelaySeconds: 300
-            timeoutSeconds: 10
-            periodSeconds: 8
-            failureThreshold: 1
-          resources:
+#          readinessProbe:
+#            httpGet:
+#              path: /manage/health/readiness
+#              port: healthz
+#            initialDelaySeconds: 300
+#            timeoutSeconds: 10
+#            periodSeconds: 3
+#            failureThreshold: 5
+#          livenessProbe:
+#            httpGet:
+#              path: /manage/health/liveness
+#              port: healthz
+#            initialDelaySeconds: 300
+#            timeoutSeconds: 10
+#            periodSeconds: 8
+#            failureThreshold: 1
+#          resources:
 #            limits:
 #              cpu: 1500m
 #              memory: 500Mi
-            requests:
-              cpu: 50m
-              memory: 150Mi
+#            requests:
+#              cpu: 50m
+#              memory: 150Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          volumeMounts:
-            - name: keystore-volume
-              mountPath: /app/keystores
-      initContainers:
-        - name: pem-to-truststore
-          image: yggdrasill.tld/mod2-mod1-gcm
-          env:
-            - name: cafile
-              value: /var/run/secrets/vault/ca.pem
-            - name: crtfile
-              value: /var/run/secrets/vault/vault.pem
-            - name: truststore_jks
-              value: /var/run/secrets/java.io/keystores/truststore.jks
-            - name: password
-              value: changeit
-          command: ['/bin/sh']
-          args: ['-c', "keytool -importcert -noprompt -alias vault -file $cafile -keystore $truststore_jks -storepass $password; ls -lsa /var/run/secrets/java.io/keystores"]
-          volumeMounts:
-            - name: keystore-volume
-              mountPath: /var/run/secrets/java.io/keystores
-            - name: vault-tls
-              mountPath: /var/run/secrets/vault/
-        - name: validate-truststore
-          image: yggdrasill.tld/mod2-mod1-gcm
-          env:
-            - name: truststore_jks
-              value: /var/run/secrets/java.io/keystores/truststore.jks
-            - name: password
-              value: changeit
-          command: ['/bin/sh']
-          args: ['-c', "keytool -list -keystore $truststore_jks -storepass $password"]
-          volumeMounts:
-            - name: keystore-volume
-              mountPath: /var/run/secrets/java.io/keystores
+#          volumeMounts:
+#            - name: keystore-volume
+#              mountPath: /app/keystores
+#      initContainers:
+#        - name: pem-to-truststore
+#          image: yggdrasill.tld/mod2-mod1-gcm-service
+#          env:
+#            - name: cafile
+#              value: /var/run/secrets/vault/ca.pem
+#            - name: crtfile
+#              value: /var/run/secrets/vault/vault.pem
+#            - name: truststore_jks
+#              value: /var/run/secrets/java.io/keystores/truststore.jks
+#            - name: password
+#              value: changeit
+#          command: ['/bin/sh']
+#          args: ['-c', "keytool -importcert -noprompt -alias vault -file $cafile -keystore $truststore_jks -storepass $password; ls -lsa /var/run/secrets/java.io/keystores"]
+#          volumeMounts:
+#            - name: keystore-volume
+#              mountPath: /var/run/secrets/java.io/keystores
+#            - name: vault-tls
+#              mountPath: /var/run/secrets/vault/
+#        - name: validate-truststore
+#          image: yggdrasill.tld/mod2-mod1-gcm-service
+#          env:
+#            - name: truststore_jks
+#              value: /var/run/secrets/java.io/keystores/truststore.jks
+#            - name: password
+#              value: changeit
+#          command: ['/bin/sh']
+#          args: ['-c', "keytool -list -keystore $truststore_jks -storepass $password"]
+#          volumeMounts:
+#            - name: keystore-volume
+#              mountPath: /var/run/secrets/java.io/keystores
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
-      volumes:
-        - name: keystore-volume
-          emptyDir: {}
-        - name: vault-tls
-          secret:
-            secretName: vault-tls-cert
+#      volumes:
+#        - name: keystore-volume
+#          emptyDir: {}
+#        - name: vault-tls
+#          secret:
+#            secretName: vault-tls-cert

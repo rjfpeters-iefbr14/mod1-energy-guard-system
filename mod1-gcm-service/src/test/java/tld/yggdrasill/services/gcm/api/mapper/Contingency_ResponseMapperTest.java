@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import tld.yggdrasill.services.gcm.api.model.ContingencyRequest;
-import tld.yggdrasill.services.gcm.api.model.ContingencyResponse;
+import tld.yggdrasill.services.gcm.api.model.v1.ContingencyResponse;
 import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.helper.ContingencyHelper;
 

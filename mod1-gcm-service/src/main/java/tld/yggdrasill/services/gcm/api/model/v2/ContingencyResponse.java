@@ -1,4 +1,4 @@
-package tld.yggdrasill.services.gcm.api.model;
+package tld.yggdrasill.services.gcm.api.model.v2;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

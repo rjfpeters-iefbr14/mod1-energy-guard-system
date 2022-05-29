@@ -1,4 +1,4 @@
-package tld.yggdrasill.services.gcm.api.model;
+package tld.yggdrasill.services.gcm.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;

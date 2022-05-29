@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tld.yggdrasill.services.gcm.api.common.exceptions.ContingencyNotFound;
 import tld.yggdrasill.services.gcm.api.common.validator.annotation.isValidUUID;
-import tld.yggdrasill.services.gcm.api.model.ContingenciesResponse;
-import tld.yggdrasill.services.gcm.api.model.ContingencyEquipmentsResponse;
-import tld.yggdrasill.services.gcm.api.model.ContingencyRequest;
-import tld.yggdrasill.services.gcm.api.model.ContingencyResponse;
-import tld.yggdrasill.services.gcm.api.model.TopologicalIslandResponse;
+import tld.yggdrasill.services.gcm.api.model.v1.ContingenciesResponse;
+import tld.yggdrasill.services.gcm.api.model.v1.ContingencyEquipmentsResponse;
+import tld.yggdrasill.services.gcm.api.model.v1.ContingencyRequest;
+import tld.yggdrasill.services.gcm.api.model.v1.ContingencyResponse;
+import tld.yggdrasill.services.gcm.api.model.v1.TopologicalIslandResponse;
 import tld.yggdrasill.services.gcm.core.model.Contingency;
 import tld.yggdrasill.services.gcm.core.model.ContingencyEquipment;
 import tld.yggdrasill.services.gcm.core.model.TopologicalIsland;
@@ -50,7 +50,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ContingencyController {
-  public static MediaType DEFAULT_APPLICATION_JSON_VALUE = MediaType.valueOf("application/vnd.contingency.v1+json");
+  public static MediaType DEFAULT_APPLICATION_JSON_VALUE =
+    MediaType.valueOf("application/vnd.contingency.v1+json");
+
+  public static MediaType NEXTGEN_APPLICATION_JSON_VALUE =
+    MediaType.valueOf("application/vnd.contingency.v2+json");
 
   private final ContingencyService contingencyService;
 
@@ -148,7 +152,7 @@ public class ContingencyController {
   //TODO:- add caching information
   @GetMapping(value = "/{id}/contingency-equipments")
   public ResponseEntity<ContingencyEquipmentsResponse> getEquipmentsById(@PathVariable("id") @isValidUUID String id) {
-    log.info("Contingency findById: {}", kv("mRID", id));
+    log.info("Contingency (contingency-equipments) findById: {}", kv("mRID", id));
     Contingency contingency = contingencyService.findById(UUID.fromString(id))
       .orElseThrow(() -> new ContingencyNotFound(id));
 
@@ -160,7 +164,7 @@ public class ContingencyController {
 
   @GetMapping(value = "/{id}/topological-island")
   public ResponseEntity<TopologicalIslandResponse> getTopologicalIslandById(@PathVariable("id") @isValidUUID String id) {
-    log.info("Contingency findById: {}", kv("mRID", id));
+    log.info("Contingency (topological-island) findById: {}", kv("mRID", id));
 
     Contingency contingency = contingencyService.findById(UUID.fromString(id))
       .orElseThrow(() -> new ContingencyNotFound(id));

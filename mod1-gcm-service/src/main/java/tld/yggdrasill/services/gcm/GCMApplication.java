@@ -9,11 +9,6 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 
 import java.util.Arrays;
 
-/*
-vault -> include mongo configuration for getting secure properties
-zalando-problem-spring-web -> Spring Boot, make sure you disable the ErrorMvcAutoConfiguration
-*/
-
 @Slf4j
 @SpringBootApplication(exclude = {ErrorMvcAutoConfiguration.class})
 public class GCMApplication implements ApplicationRunner {
