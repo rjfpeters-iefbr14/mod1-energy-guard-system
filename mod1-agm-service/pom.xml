@@ -16,7 +16,6 @@
   <description>Sample Kafka/Camunda system :: agm-service</description>
 
   <properties>
-    <maven.build.timestamp.format>yyyyMMdd-HHmmssSSS</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
@@ -437,6 +436,15 @@
           <!--  human-readable part of the version number -->
           <dateFormat>yyyyMMdd-HHmmss</dateFormat>
         </configuration>
+        <executions>
+          <execution>
+            <id>get-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -566,6 +574,9 @@
               <org.opencontainers.image.description>${project.description}</org.opencontainers.image.description>
               <org.opencontainers.image.name>${project.artifactId}</org.opencontainers.image.name>
               <org.opencontainers.image.version>${project.version}</org.opencontainers.image.version>
+              <org.opencontainers.image.created>${maven.build.timestamp}</org.opencontainers.image.created>
+              <!--suppress UnresolvedMavenProperty -->
+              <org.opencontainers.image.revision>${git.commit.id.abbrev}</org.opencontainers.image.revision>
             </labels>
           </container>
           <extraDirectories>

@@ -1,4 +1,4 @@
-info.app.name: mod1-agm-service
+info.app.name: autonomous-grid-manager
 ---
 spring:
   application:
